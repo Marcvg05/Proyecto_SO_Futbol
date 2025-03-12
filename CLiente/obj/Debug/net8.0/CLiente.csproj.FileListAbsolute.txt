@@ -1,0 +1,14 @@
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\bin\Debug\net8.0\CLiente.exe
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\bin\Debug\net8.0\CLiente.deps.json
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\bin\Debug\net8.0\CLiente.runtimeconfig.json
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\bin\Debug\net8.0\CLiente.dll
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\bin\Debug\net8.0\CLiente.pdb
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\CLiente.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\CLiente.AssemblyInfoInputs.cache
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\CLiente.AssemblyInfo.cs
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\CLiente.csproj.CoreCompileInputs.cache
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\CLiente.dll
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\refint\CLiente.dll
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\CLiente.pdb
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\CLiente.genruntimeconfig.cache
+C:\Users\marcv\Desktop\Server\CLiente\CLiente\obj\Debug\net8.0\ref\CLiente.dll

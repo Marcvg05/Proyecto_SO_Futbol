@@ -1,3 +1,7 @@
 # Proyecto-So
 SO Proyecto
-URL Video V1:https://youtu.be/2egJaZeGyAw
+## Version 1
+URL Video V1: https://youtu.be/2egJaZeGyAw
+## Version 2
+URL Video 1 V2: https://youtu.be/sIIta6mbg3c
+URL Video 2 V2: https://youtu.be/uFBNbAgyERM

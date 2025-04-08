@@ -1,11 +1,9 @@
--- Elimina la base de datos si ya existe
-DROP DATABASE IF EXISTS bd;
-
+DROP DATABASE IF EXISTS T7_BBDD;
 -- Crea la base de datos
-CREATE DATABASE bd;
+CREATE DATABASE T7_BBDD;
 
 -- Usa la base de datos recién creada
-USE bd;
+USE T7_BBDD;
 
 -- Crea la tabla de jugadores (players)
 CREATE TABLE players (

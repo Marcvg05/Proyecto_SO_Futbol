@@ -17,11 +17,11 @@
 #define DB_NAME "T7_BBDD"
 #define MAX_PLAYERS 100
 #define NOTIFICATION_MSG_SIZE 512
+#define MAX_MIEMBROS_GRUPO 3  // Máximo de 3 jugadores por grupo
 
 MYSQL *conn;
 volatile sig_atomic_t shutdown_requested = 0;
 
-// Estructura para jugadores conectados
 typedef struct {
     char nombre[50];
     int socket;
@@ -32,7 +32,33 @@ typedef struct {
     int num;
 } ListaConectados;
 
-// Estructura para el sistema de notificaciones
+typedef struct {
+    char nombre[50];
+    int socket;
+} MiembroGrupo;
+
+typedef struct {
+    char nombre_creador[50];
+    MiembroGrupo miembros[MAX_MIEMBROS_GRUPO];
+    int num_miembros;
+} Grupo;
+
+typedef struct {
+    Grupo grupos[20];
+    int num_grupos;
+} ListaGrupos;
+
+typedef struct {
+    int socket_invitador;
+    int socket_invitado;
+    int grupo_idx;
+} InvitacionPendiente;
+
+typedef struct {
+    InvitacionPendiente invitaciones[100];
+    int num_invitaciones;
+} ListaInvitaciones;
+
 typedef struct {
     char message[NOTIFICATION_MSG_SIZE];
     int broadcast;
@@ -45,16 +71,218 @@ typedef struct {
     pthread_mutex_t *mutex;
 } NotificationHandler;
 
-// Estructura para datos del cliente
 typedef struct {
     int socket;
     ListaConectados *lista;
+    ListaGrupos *lista_grupos;
+    ListaInvitaciones *lista_invitaciones;
     pthread_mutex_t *mutex;
     NotificationHandler *notif_handler;
     char nombre[50];
 } ThreadData;
 
-// Funciones de base de datos
+int CrearGrupo(ListaGrupos *lista, const char *creador) {
+    if (lista->num_grupos == 20) {
+        return -1; // Máximo de grupos alcanzado
+    }
+    
+    // Verificar si el jugador ya está en un grupo
+    for (int i = 0; i < lista->num_grupos; i++) {
+        for (int j = 0; j < lista->grupos[i].num_miembros; j++) {
+            if (strcmp(lista->grupos[i].miembros[j].nombre, creador) == 0) {
+                return -2; // Jugador ya está en un grupo
+            }
+        }
+    }
+    
+    strncpy(lista->grupos[lista->num_grupos].nombre_creador, creador, 50);
+    lista->grupos[lista->num_grupos].num_miembros = 1;
+    strncpy(lista->grupos[lista->num_grupos].miembros[0].nombre, creador, 50);
+    lista->grupos[lista->num_grupos].miembros[0].socket = -1; // Se actualizará cuando envíe mensaje
+    lista->num_grupos++;
+    return lista->num_grupos - 1;
+}
+
+int SalirDeGrupo(ListaGrupos *lista, const char *nombre_jugador) {
+    for (int i = 0; i < lista->num_grupos; i++) {
+        for (int j = 0; j < lista->grupos[i].num_miembros; j++) {
+            if (strcmp(lista->grupos[i].miembros[j].nombre, nombre_jugador) == 0) {
+                // Mover todos los miembros posteriores una posición hacia atrás
+                for (int k = j; k < lista->grupos[i].num_miembros - 1; k++) {
+                    lista->grupos[i].miembros[k] = lista->grupos[i].miembros[k + 1];
+                }
+                lista->grupos[i].num_miembros--;
+                
+                // Si el grupo queda vacío, eliminarlo
+                if (lista->grupos[i].num_miembros == 0) {
+                    for (int k = i; k < lista->num_grupos - 1; k++) {
+                        lista->grupos[k] = lista->grupos[k + 1];
+                    }
+                    lista->num_grupos--;
+                    return 1; // Grupo eliminado
+                }
+                return 0; // Jugador eliminado pero grupo sigue existiendo
+            }
+        }
+    }
+    return -1; // Jugador no encontrado en ningún grupo
+}
+
+int InvitarAGrupo(ListaGrupos *lista, ListaInvitaciones *invitaciones, ListaConectados *conectados, 
+                 int socket_invitador, const char *invitado, int grupo_idx) {
+    // Verificar si el invitado está conectado
+    int socket_invitado = -1;
+    for (int i = 0; i < conectados->num; i++) {
+        if (strcmp(conectados->conectados[i].nombre, invitado) == 0) {
+            socket_invitado = conectados->conectados[i].socket;
+            break;
+        }
+    }
+    if (socket_invitado == -1) {
+        return -1; // Invitado no conectado
+    }
+
+    // Verificar si el grupo existe
+    if (grupo_idx < 0 || grupo_idx >= lista->num_grupos) {
+        return -2; // Grupo no existe
+    }
+
+    // Verificar si el invitador está en el grupo
+    int invitador_en_grupo = 0;
+    for (int i = 0; i < lista->grupos[grupo_idx].num_miembros; i++) {
+        if (lista->grupos[grupo_idx].miembros[i].socket == socket_invitador) {
+            invitador_en_grupo = 1;
+            break;
+        }
+    }
+    if (!invitador_en_grupo) {
+        return -3; // Invitador no está en el grupo
+    }
+
+    // Verificar si el invitado ya está en un grupo
+    for (int i = 0; i < lista->num_grupos; i++) {
+        for (int j = 0; j < lista->grupos[i].num_miembros; j++) {
+            if (lista->grupos[i].miembros[j].socket == socket_invitado) {
+                return -4; // Invitado ya está en un grupo
+            }
+        }
+    }
+
+    // Crear la nueva invitación
+    invitaciones->invitaciones[invitaciones->num_invitaciones].socket_invitador = socket_invitador;
+    invitaciones->invitaciones[invitaciones->num_invitaciones].socket_invitado = socket_invitado;
+    invitaciones->invitaciones[invitaciones->num_invitaciones].grupo_idx = grupo_idx;
+    invitaciones->num_invitaciones++;
+
+    // Enviar mensaje de invitación
+    char chat_msg[512];
+    snprintf(chat_msg, sizeof(chat_msg), "INVITACION_FORM|%d", grupo_idx);
+    
+    if (write(socket_invitado, chat_msg, strlen(chat_msg)) <= 0) {
+        perror("Error enviando mensaje de invitación");
+        invitaciones->num_invitaciones--;
+        return -5;
+    }
+    
+    return 0;
+}
+
+int AceptarInvitacion(ListaGrupos *lista_grupos,
+                     ListaInvitaciones *invitaciones,
+                     ListaConectados *conectados,
+                     int socket_invitado,
+                     int grupo_idx) {
+    for (int i = 0; i < invitaciones->num_invitaciones; i++) {
+        InvitacionPendiente *inv = &invitaciones->invitaciones[i];
+        if (inv->socket_invitado == socket_invitado &&
+            inv->grupo_idx == grupo_idx) {
+            Grupo *grupo = &lista_grupos->grupos[grupo_idx];
+            
+            if (grupo->num_miembros >= MAX_MIEMBROS_GRUPO)
+                return -2; // Grupo lleno
+
+            // Verificar si ya está en grupo
+            for (int j = 0; j < lista_grupos->num_grupos; j++) {
+                for (int k = 0; k < lista_grupos->grupos[j].num_miembros; k++) {
+                    if (lista_grupos->grupos[j].miembros[k].socket == socket_invitado) {
+                        return -3; // Ya en otro grupo
+                    }
+                }
+            }
+
+            // Obtener nombre del invitado desde la lista de conectados
+            const char *nombre_invitado = NULL;
+            for (int j = 0; j < conectados->num; j++) {
+                if (conectados->conectados[j].socket == socket_invitado) {
+                    nombre_invitado = conectados->conectados[j].nombre;
+                    break;
+                }
+            }
+            if (!nombre_invitado) {
+                return -4; // Jugador no encontrado
+            }
+
+            // Añadir al grupo
+            strncpy(grupo->miembros[grupo->num_miembros].nombre, nombre_invitado, 50);
+            grupo->miembros[grupo->num_miembros].socket = socket_invitado;
+            grupo->num_miembros++;
+
+            // Eliminar la invitación
+            for (int j = i; j + 1 < invitaciones->num_invitaciones; j++) {
+                invitaciones->invitaciones[j] = invitaciones->invitaciones[j + 1];
+            }
+            invitaciones->num_invitaciones--;
+
+            return 0; // Éxito
+        }
+    }
+    return -1; // No encontrada
+}
+
+void RechazarInvitacion(ListaInvitaciones *invitaciones, int socket_invitado, int grupo_idx)
+{
+    for (int i = 0; i < invitaciones->num_invitaciones; i++) {
+        InvitacionPendiente *inv = &invitaciones->invitaciones[i];
+        if (inv->socket_invitado == socket_invitado &&  // Comparación por socket
+            inv->grupo_idx == grupo_idx)
+        {
+            // Eliminar la invitación desplazando los elementos
+            for (int j = i; j < invitaciones->num_invitaciones - 1; j++) {
+                invitaciones->invitaciones[j] = invitaciones->invitaciones[j + 1];
+            }
+            invitaciones->num_invitaciones--;
+            break;  // Salir del bucle después de eliminar
+        }
+    }
+}
+
+void EnviarMensajeGrupo(ListaGrupos *lista, const char *remitente, const char *mensaje) {
+    for (int i = 0; i < lista->num_grupos; i++) {
+        for (int j = 0; j < lista->grupos[i].num_miembros; j++) {
+            if (strcmp(lista->grupos[i].miembros[j].nombre, remitente) == 0) {
+                char msg_completo[512];
+                snprintf(msg_completo, sizeof(msg_completo), "GRUPO|%s|%s", remitente, mensaje);
+                
+                // Actualizar el socket del remitente por si ha cambiado
+                for (int k = 0; k < lista->grupos[i].num_miembros; k++) {
+                    if (strcmp(lista->grupos[i].miembros[k].nombre, remitente) == 0) {
+                        lista->grupos[i].miembros[k].socket = lista->grupos[i].miembros[j].socket;
+                        break;
+                    }
+                }
+                
+                for (int k = 0; k < lista->grupos[i].num_miembros; k++) {
+                    if (write(lista->grupos[i].miembros[k].socket, msg_completo, strlen(msg_completo)) <= 0) {
+                        perror("Error enviando mensaje de grupo");
+                    }
+                }
+                return;
+            }
+        }
+    }
+}
+
+
 void connect_db() {
     conn = mysql_init(NULL);
     if (conn == NULL) {
@@ -126,7 +354,6 @@ int check_login_credentials(MYSQL *conn, const char *username, const char *passw
     return num_rows > 0 ? 1 : 0;
 }
 
-// Funciones de gestión de jugadores
 int NuevoJugador(ListaConectados *lista, const char *nombre, int socket) {
     if (lista->num == MAX_PLAYERS) {
         return -1;
@@ -184,7 +411,6 @@ void DameConectados(ListaConectados *lista, char conectados[300]) {
     }
 }
 
-// Funciones de notificaciones
 void *notification_thread(void *arg) {
     NotificationHandler *handler = (NotificationHandler *)arg;
     char buffer[sizeof(Notification)];
@@ -210,7 +436,7 @@ void *notification_thread(void *arg) {
                 for (int i = 0; i < handler->lista->num; i++) {
                     int sock = handler->lista->conectados[i].socket;
                     if (write(sock, broadcast_msg, strlen(broadcast_msg)) <= 0) {
-                        // Cliente desconectado, lo manejaremos en el próximo broadcast
+                        perror("Error en broadcast");
                     }
                 }
                 
@@ -244,11 +470,12 @@ void send_notification(NotificationHandler *handler, const char *message, int br
     }
 }
 
-// Manejador de clientes
 void *handle_client(void *arg) {
     ThreadData *data = (ThreadData *)arg;
     int sock_conn = data->socket;
     ListaConectados *lista = data->lista;
+    ListaGrupos *lista_grupos = data->lista_grupos;
+    ListaInvitaciones *lista_invitaciones = data->lista_invitaciones;
     pthread_mutex_t *mutex = data->mutex;
     NotificationHandler *notif_handler = data->notif_handler;
     
@@ -308,14 +535,14 @@ void *handle_client(void *arg) {
                 
                 int reg_status = register_player(conn, data->nombre, password);
                 if (reg_status == 1) {
-                    strcpy(buff2, "Registro exitoso,");
+                    strcpy(buff2, "Registro exitoso");
                 } else if (reg_status == 0) {
-                    strcpy(buff2, "Error: Usuario ya existe,");
+                    strcpy(buff2, "Error: Usuario ya existe");
                 } else {
-                    strcpy(buff2, "Error: Fallo en registro,");
+                    strcpy(buff2, "Error: Fallo en registro");
                 }
             } else {
-                strcpy(buff2, "Error: Datos incompletos,");
+                strcpy(buff2, "Error: Datos incompletos");
             }
         }
         else if (codigo == 2) { // Login
@@ -327,16 +554,17 @@ void *handle_client(void *arg) {
                 
                 int login_status = check_login_credentials(conn, data->nombre, password);
                 if (login_status == 1) {
-		    strcpy(buff2, "Login exitoso,");
-		    
-		    pthread_mutex_lock(mutex);
-		    int result = NuevoJugador(lista, data->nombre, sock_conn);
-		    if (result == 0) {
-			char notif_msg[256];
-   			snprintf(notif_msg, sizeof(notif_msg), "LOGIN:%s", data->nombre); // Prefijo LOGIN
-   			send_notification(notif_handler, notif_msg, 1);
-		    }
-		    pthread_mutex_unlock(mutex); 
+                    strcpy(buff2, "Login exitoso,");
+                    
+                    pthread_mutex_lock(mutex);
+                    int result = NuevoJugador(lista, data->nombre, sock_conn);
+                    if (result == 0) {
+                        char notif_msg[256];
+                        snprintf(notif_msg, sizeof(notif_msg), "LOGIN:%s", data->nombre);
+                        send_notification(notif_handler, notif_msg, 1);
+                    }
+                    pthread_mutex_unlock(mutex);
+                    
                     if (result == -1) {
                         strcat(buff2, " Error: Lista llena,");
                     } else if (result == -2) {
@@ -349,21 +577,199 @@ void *handle_client(void *arg) {
                 strcpy(buff2, "Error: Datos incompletos,");
             }
         }
+        else if (codigo == 3) { // Operación reservada
+            strcpy(buff2, "Operación no implementada,");
+        }
+        else if (codigo == 4) { // Jugadores conectados
+            char misConectados[300];
+            pthread_mutex_lock(mutex);
+            DameConectados(lista, misConectados);
+            pthread_mutex_unlock(mutex);
+            
+            snprintf(buff2, sizeof(buff2), "%s", misConectados);
+            if (write(sock_conn, buff2, strlen(buff2)) <= 0) {
+                perror("Error enviando respuesta a 4|");
+            }
+        }
+        else if (codigo == 5) { // Historial de partidas
+            pthread_mutex_lock(mutex);
+            int pos = DamePosicion(lista, data->nombre);
+            pthread_mutex_unlock(mutex);
+            
+            if (pos == -1) {
+                strcpy(buff2, "Error: No autenticado");
+            } else {
+                const char* query = "SELECT m.match_id, mp1.player_name, mp2.player_name, m.winner_name "
+                                   "FROM matches m "
+                                   "JOIN match_players mp1 ON m.match_id = mp1.match_id AND mp1.result = 'win' "
+                                   "JOIN match_players mp2 ON m.match_id = mp2.match_id AND mp2.result = 'lose'";
+                
+                if (mysql_query(conn, query)) {
+                    strcpy(buff2, "Error: DB query failed");
+                } else {
+                    MYSQL_RES *result = mysql_store_result(conn);
+                    if (result == NULL) {
+                        strcpy(buff2, "Error: No results");
+                    } else {
+                        buff2[0] = '\0';
+                        MYSQL_ROW row;
+                        while ((row = mysql_fetch_row(result))) {
+                            char match_info[256];
+                            snprintf(match_info, sizeof(match_info), "%s:%s:%s:%s|",
+                                    row[0] ? row[0] : "NULL",
+                                    row[1] ? row[1] : "NULL",
+                                    row[2] ? row[2] : "NULL",
+                                    row[3] ? row[3] : "NULL");
+                            strcat(buff2, match_info);
+                        }
+                        if (strlen(buff2) > 0 && buff2[strlen(buff2)-1] == '|') {
+                            buff2[strlen(buff2)-1] = '\0';
+                        }
+                        mysql_free_result(result);
+                    }
+                }
+            }
+            if (write(sock_conn, buff2, strlen(buff2)) <= 0) {
+                perror("Error enviando historial");
+            }
+        }
         else if (codigo == 6) { // Logout
             pthread_mutex_lock(mutex);
             Eliminar(lista, data->nombre);
             
             char notif_msg[256];
-            snprintf(notif_msg, sizeof(notif_msg), 
-                     "Logout: %s", data->nombre);
+            snprintf(notif_msg, sizeof(notif_msg), "LOGOUT:%s", data->nombre);
             send_notification(notif_handler, notif_msg, 1);
             
             pthread_mutex_unlock(mutex);
             
-	    snprintf(notif_msg, sizeof(notif_msg), "LOGOUT:%s", data->nombre);
             strcpy(buff2, "Sesión cerrada correctamente,");
             write(sock_conn, buff2, strlen(buff2));
             break;
+        }
+        else if (codigo == 7) { // Crear grupo
+            pthread_mutex_lock(mutex);
+            int grupo_idx = CrearGrupo(lista_grupos, data->nombre);
+            pthread_mutex_unlock(mutex);
+            
+            if (grupo_idx >= 0) {
+                strcpy(buff2, "Grupo creado correctamente,");
+                
+                char notif_msg[256];
+                snprintf(notif_msg, sizeof(notif_msg), "GRUPO_CREADO:%s", data->nombre);
+                send_notification(notif_handler, notif_msg, 0);
+            } else if (grupo_idx == -2) {
+                strcpy(buff2, "Error: Ya estás en un grupo,");
+            } else {
+                strcpy(buff2, "Error: No se pudo crear el grupo,");
+            }
+        }
+        else if (codigo == 8) { // Invitar a grupo
+            p = strtok(NULL, "|");
+            char invitado[50];
+            if (p != NULL) {
+                strncpy(invitado, p, sizeof(invitado) - 1);
+                invitado[sizeof(invitado) - 1] = '\0';
+        
+                pthread_mutex_lock(mutex);
+        
+                int grupo_idx = -1;
+                // Buscar grupo del invitador
+                for (int i = 0; i < lista_grupos->num_grupos; i++) {
+                    for (int j = 0; j < lista_grupos->grupos[i].num_miembros; j++) {
+                        if (lista_grupos->grupos[i].miembros[j].socket == sock_conn) {
+                            grupo_idx = i;
+                            break;
+                        }
+                    }
+                    if (grupo_idx != -1) break;
+                }
+        
+                if (grupo_idx == -1) {
+                    pthread_mutex_unlock(mutex);
+                    snprintf(buff2, sizeof(buff2), "INVITACION_RESULTADO|ERROR|No estás en ningún grupo");
+                } else {
+                    int result = InvitarAGrupo(lista_grupos, lista_invitaciones, lista, 
+                                             sock_conn, invitado, grupo_idx);
+                    pthread_mutex_unlock(mutex);
+        
+                    if (result == 0) {
+                        snprintf(buff2, sizeof(buff2), "INVITACION_RESULTADO|OK|Invitación enviada a %s", invitado);
+                    } else if (result == -1) {
+                        snprintf(buff2, sizeof(buff2), "INVITACION_RESULTADO|ERROR|Jugador no conectado");
+                    } else {
+                        snprintf(buff2, sizeof(buff2), "INVITACION_RESULTADO|ERROR|Error desconocido");
+                    }
+                }
+            } else {
+                snprintf(buff2, sizeof(buff2), "INVITACION_RESULTADO|ERROR|Nombre del invitado vacío");
+            }
+        
+            if (write(sock_conn, buff2, strlen(buff2)) <= 0) {
+                perror("Error enviando resultado de invitación");
+            }
+        }
+
+        else if (codigo == 9) { // Enviar mensaje al grupo
+            p = strtok(NULL, "|");
+            char mensaje[256];
+            if (p != NULL) {
+                strncpy(mensaje, p, sizeof(mensaje) - 1);
+                
+                pthread_mutex_lock(mutex);
+                EnviarMensajeGrupo(lista_grupos, data->nombre, mensaje);
+                pthread_mutex_unlock(mutex);
+                
+                strcpy(buff2, "Mensaje enviado,");
+            } else {
+                strcpy(buff2, "Error: Mensaje vacío,");
+            }
+        }
+        else if (codigo == 10) {  // Aceptar invitación
+            int grupo_idx = p ? atoi(p) : -1;
+            
+            pthread_mutex_lock(mutex);
+            int res = AceptarInvitacion(lista_grupos, lista_invitaciones, lista, sock_conn, grupo_idx);
+            pthread_mutex_unlock(mutex);
+        
+            if (res == 0) {
+                strcpy(buff2, "Invitación aceptada. Ahora eres miembro del grupo,");
+            }
+            else if (res == -2) strcpy(buff2, "Error: Grupo lleno,");
+            else if (res == -3) strcpy(buff2, "Error: Ya estás en un grupo,");
+            else strcpy(buff2, "Error: Invitación no encontrada,");
+        
+            if (write(sock_conn, buff2, strlen(buff2)) <= 0) {
+                perror("Error confirmando aceptación al invitado");
+            }
+        }
+		else if (codigo == 11) {  // Rechazar invitación
+            int grupo_idx = p ? atoi(p) : -1;
+            
+            pthread_mutex_lock(mutex);
+            RechazarInvitacion(lista_invitaciones, sock_conn, grupo_idx);
+            pthread_mutex_unlock(mutex);
+        
+            strcpy(buff2, "Invitación rechazada,");
+            
+            if (write(sock_conn, buff2, strlen(buff2)) <= 0) {
+                perror("Error confirmando rechazo al invitado");
+            }
+        }
+        else if (codigo == 12) { // Salir de grupo
+            pthread_mutex_lock(mutex);
+            int result = SalirDeGrupo(lista_grupos, data->nombre);
+            pthread_mutex_unlock(mutex);
+            
+            if (result >= 0) {
+                strcpy(buff2, "Has salido del grupo,");
+                
+                char notif_msg[256];
+                snprintf(notif_msg, sizeof(notif_msg), "SALIO_DEL_GRUPO:%s", data->nombre);
+                send_notification(notif_handler, notif_msg, 1);
+            } else {
+                strcpy(buff2, "Error: No estabas en ningún grupo,");
+            }
         }
         else {
             strcpy(buff2, "Error: Código no válido,");
@@ -377,11 +783,13 @@ void *handle_client(void *arg) {
 
     if (strlen(data->nombre) > 0) {
         pthread_mutex_lock(mutex);
+        // Salir de cualquier grupo al que pertenezca
+        SalirDeGrupo(lista_grupos, data->nombre);
+        
         Eliminar(lista, data->nombre);
         
         char notif_msg[256];
-        snprintf(notif_msg, sizeof(notif_msg), 
-                 "Desconexión: %s", data->nombre);
+        snprintf(notif_msg, sizeof(notif_msg), "DESCONEXION:%s", data->nombre);
         send_notification(notif_handler, notif_msg, 1);
         
         pthread_mutex_unlock(mutex);
@@ -393,18 +801,18 @@ void *handle_client(void *arg) {
     pthread_exit(NULL);
 }
 
-// Manejador de señales
 void handle_signal(int sig) {
     shutdown_requested = 1;
 }
 
 int main(int argc, char *argv[]) {
     ListaConectados miLista = {0};
+    ListaGrupos lista_grupos = {0};
+    ListaInvitaciones lista_invitaciones = {0};
     int sock_listen, sock_conn;
     struct sockaddr_in serv_adr;
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     
-    // Configurar manejador de señales
     struct sigaction sa;
     sa.sa_handler = handle_signal;
     sigemptyset(&sa.sa_mask);
@@ -412,7 +820,6 @@ int main(int argc, char *argv[]) {
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
     
-    // Inicializar sistema de notificaciones
     NotificationHandler notif_handler;
     notif_handler.lista = &miLista;
     notif_handler.mutex = &mutex;
@@ -427,22 +834,18 @@ int main(int argc, char *argv[]) {
         fcntl(notif_handler.notification_pipe[i], F_SETFL, flags | O_NONBLOCK);
     }
     
-    // Conectar a la base de datos
     connect_db();
     
-    // Crear thread de notificaciones
     if (pthread_create(&notif_handler.thread_id, NULL, notification_thread, &notif_handler) != 0) {
         perror("Error creando thread de notificaciones");
         exit(EXIT_FAILURE);
     }
     
-    // Configurar socket del servidor
     if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Error creando socket");
         exit(EXIT_FAILURE);
     }
     
-    // Configurar opciones del socket
     int optval = 1;
     if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval))) {
         perror("Error configurando SO_REUSEADDR");
@@ -470,7 +873,6 @@ int main(int argc, char *argv[]) {
     
     printf("Servidor iniciado. Esperando conexiones...\n");
     
-    // Bucle principal del servidor
     while (!shutdown_requested) {
         fd_set readfds;
         FD_ZERO(&readfds);
@@ -497,6 +899,8 @@ int main(int argc, char *argv[]) {
             ThreadData *data = malloc(sizeof(ThreadData));
             data->socket = sock_conn;
             data->lista = &miLista;
+            data->lista_grupos = &lista_grupos;
+            data->lista_invitaciones = &lista_invitaciones;
             data->mutex = &mutex;
             data->notif_handler = &notif_handler;
             data->nombre[0] = '\0';
@@ -512,17 +916,13 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    // Limpieza al finalizar
     printf("Cerrando servidor...\n");
     
-    // Cerrar pipe de notificaciones
     close(notif_handler.notification_pipe[0]);
     close(notif_handler.notification_pipe[1]);
     
-    // Esperar a que el thread de notificaciones termine
     pthread_join(notif_handler.thread_id, NULL);
     
-    // Cerrar socket y base de datos
     close(sock_listen);
     mysql_close(conn);
     

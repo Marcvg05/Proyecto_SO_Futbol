@@ -1,0 +1,20 @@
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\bin\Debug\Cliente.exe.config
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\bin\Debug\Cliente.exe
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\bin\Debug\Cliente.pdb
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\obj\Debug\Cliente.exe
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\obj\Debug\Cliente.pdb
+C:\Users\marqu\OneDrive\Escritorio\Practicas SO\Proyecto_SO_Futbol-main\Cliente\obj\Debug\Cliente.Form1.resources
+C:\Users\marcv\Downloads\Cliente\Cliente\bin\Debug\Cliente.exe.config
+C:\Users\marcv\Downloads\Cliente\Cliente\bin\Debug\Cliente.exe
+C:\Users\marcv\Downloads\Cliente\Cliente\bin\Debug\Cliente.pdb
+C:\Users\marcv\Downloads\Cliente\Cliente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\marcv\Downloads\Cliente\Cliente\obj\Debug\Cliente.Form1.resources
+C:\Users\marcv\Downloads\Cliente\Cliente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\marcv\Downloads\Cliente\Cliente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Users\marcv\Downloads\Cliente\Cliente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\marcv\Downloads\Cliente\Cliente\obj\Debug\Cliente.exe
+C:\Users\marcv\Downloads\Cliente\Cliente\obj\Debug\Cliente.pdb

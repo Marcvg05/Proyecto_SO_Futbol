@@ -39,8 +39,16 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
-            this.statusLabel = new System.Windows.Forms.Label();
             this.connectedPlayersDataGridView = new System.Windows.Forms.DataGridView();
+            this.statusLabel = new System.Windows.Forms.Label();
+            this.btnCrearGrupo = new System.Windows.Forms.Button();
+            this.txtInvitado = new System.Windows.Forms.TextBox();
+            this.btnInvitar = new System.Windows.Forms.Button();
+            this.txtMensajeGrupo = new System.Windows.Forms.TextBox();
+            this.btnEnviarMensajeGrupo = new System.Windows.Forms.Button();
+            this.btnSalirGrupo = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.connectedPlayersDataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -120,9 +128,9 @@
             this.button4.Location = new System.Drawing.Point(9, 193);
             this.button4.Margin = new System.Windows.Forms.Padding(2);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(128, 19);
+            this.button4.Size = new System.Drawing.Size(115, 19);
             this.button4.TabIndex = 7;
-            this.button4.Text = "Mostrar historial partidas";
+            this.button4.Text = "Consultar Jugadores";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -131,9 +139,9 @@
             this.button5.Location = new System.Drawing.Point(9, 225);
             this.button5.Margin = new System.Windows.Forms.Padding(2);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(134, 19);
+            this.button5.Size = new System.Drawing.Size(115, 34);
             this.button5.TabIndex = 8;
-            this.button5.Text = "Consultar jugadores online ";
+            this.button5.Text = "Mostrar historial partidas";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -148,6 +156,16 @@
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // connectedPlayersDataGridView
+            // 
+            this.connectedPlayersDataGridView.BackgroundColor = System.Drawing.Color.White;
+            this.connectedPlayersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.connectedPlayersDataGridView.Location = new System.Drawing.Point(758, 10);
+            this.connectedPlayersDataGridView.Name = "connectedPlayersDataGridView";
+            this.connectedPlayersDataGridView.Size = new System.Drawing.Size(240, 150);
+            this.connectedPlayersDataGridView.TabIndex = 11;
+            this.connectedPlayersDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.connectedPlayersDataGridView_CellContentClick);
+            // 
             // statusLabel
             // 
             this.statusLabel.AutoSize = true;
@@ -159,15 +177,81 @@
             this.statusLabel.Text = "label3";
             this.statusLabel.Click += new System.EventHandler(this.statusLabel_Click);
             // 
-            // connectedPlayersDataGridView
+            // btnCrearGrupo
             // 
-            this.connectedPlayersDataGridView.BackgroundColor = System.Drawing.Color.White;
-            this.connectedPlayersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.connectedPlayersDataGridView.Location = new System.Drawing.Point(758, 10);
-            this.connectedPlayersDataGridView.Name = "connectedPlayersDataGridView";
-            this.connectedPlayersDataGridView.Size = new System.Drawing.Size(240, 150);
-            this.connectedPlayersDataGridView.TabIndex = 11;
-            this.connectedPlayersDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.connectedPlayersDataGridView_CellContentClick);
+            this.btnCrearGrupo.Location = new System.Drawing.Point(9, 280);
+            this.btnCrearGrupo.Name = "btnCrearGrupo";
+            this.btnCrearGrupo.Size = new System.Drawing.Size(115, 24);
+            this.btnCrearGrupo.TabIndex = 12;
+            this.btnCrearGrupo.Text = "Crear Grupo";
+            this.btnCrearGrupo.UseVisualStyleBackColor = true;
+            this.btnCrearGrupo.Click += new System.EventHandler(this.btnCrearGrupo_Click);
+            // 
+            // txtInvitado
+            // 
+            this.txtInvitado.Location = new System.Drawing.Point(9, 310);
+            this.txtInvitado.Name = "txtInvitado";
+            this.txtInvitado.Size = new System.Drawing.Size(115, 20);
+            this.txtInvitado.TabIndex = 13;
+            // 
+            // btnInvitar
+            // 
+            this.btnInvitar.Location = new System.Drawing.Point(10, 336);
+            this.btnInvitar.Name = "btnInvitar";
+            this.btnInvitar.Size = new System.Drawing.Size(57, 20);
+            this.btnInvitar.TabIndex = 14;
+            this.btnInvitar.Text = "Invitar";
+            this.btnInvitar.UseVisualStyleBackColor = true;
+            this.btnInvitar.Click += new System.EventHandler(this.btnInvitar_Click);
+            // 
+            // txtMensajeGrupo
+            // 
+            this.txtMensajeGrupo.Location = new System.Drawing.Point(12, 390);
+            this.txtMensajeGrupo.Multiline = true;
+            this.txtMensajeGrupo.Name = "txtMensajeGrupo";
+            this.txtMensajeGrupo.Size = new System.Drawing.Size(112, 50);
+            this.txtMensajeGrupo.TabIndex = 15;
+            this.txtMensajeGrupo.TextChanged += new System.EventHandler(this.txtMensajeGrupo_TextChanged);
+            // 
+            // btnEnviarMensajeGrupo
+            // 
+            this.btnEnviarMensajeGrupo.Location = new System.Drawing.Point(49, 446);
+            this.btnEnviarMensajeGrupo.Name = "btnEnviarMensajeGrupo";
+            this.btnEnviarMensajeGrupo.Size = new System.Drawing.Size(75, 23);
+            this.btnEnviarMensajeGrupo.TabIndex = 16;
+            this.btnEnviarMensajeGrupo.Text = "Enviar Mensaje Grupo";
+            this.btnEnviarMensajeGrupo.UseVisualStyleBackColor = true;
+            this.btnEnviarMensajeGrupo.Click += new System.EventHandler(this.btnEnviarMensajeGrupo_Click);
+            // 
+            // btnSalirGrupo
+            // 
+            this.btnSalirGrupo.Location = new System.Drawing.Point(70, 336);
+            this.btnSalirGrupo.Name = "btnSalirGrupo";
+            this.btnSalirGrupo.Size = new System.Drawing.Size(57, 20);
+            this.btnSalirGrupo.TabIndex = 17;
+            this.btnSalirGrupo.Text = "Salir ";
+            this.btnSalirGrupo.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(0, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 13);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "label3";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.label4.ForeColor = System.Drawing.Color.Snow;
+            this.label4.Location = new System.Drawing.Point(10, 370);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(37, 17);
+            this.label4.TabIndex = 19;
+            this.label4.Text = "Chat";
             // 
             // Form1
             // 
@@ -177,6 +261,14 @@
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.ClientSize = new System.Drawing.Size(1010, 531);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.btnSalirGrupo);
+            this.Controls.Add(this.btnEnviarMensajeGrupo);
+            this.Controls.Add(this.txtMensajeGrupo);
+            this.Controls.Add(this.btnInvitar);
+            this.Controls.Add(this.txtInvitado);
+            this.Controls.Add(this.btnCrearGrupo);
             this.Controls.Add(this.connectedPlayersDataGridView);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.button6);
@@ -211,8 +303,16 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.DataGridView connectedPlayersDataGridView;
+        private System.Windows.Forms.Label statusLabel;
+        private System.Windows.Forms.Button btnCrearGrupo;
+        private System.Windows.Forms.TextBox txtInvitado;
+        private System.Windows.Forms.Button btnInvitar;
+        private System.Windows.Forms.TextBox txtMensajeGrupo;
+        private System.Windows.Forms.Button btnEnviarMensajeGrupo;
+        private System.Windows.Forms.Button btnSalirGrupo;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
     }
 }
 

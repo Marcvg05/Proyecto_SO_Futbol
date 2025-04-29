@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
@@ -39,36 +40,51 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
-            this.connectedPlayersDataGridView = new System.Windows.Forms.DataGridView();
             this.statusLabel = new System.Windows.Forms.Label();
-            this.btnCrearGrupo = new System.Windows.Forms.Button();
-            this.txtInvitado = new System.Windows.Forms.TextBox();
-            this.btnInvitar = new System.Windows.Forms.Button();
-            this.txtMensajeGrupo = new System.Windows.Forms.TextBox();
-            this.btnEnviarMensajeGrupo = new System.Windows.Forms.Button();
-            this.btnSalirGrupo = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.connectedPlayersDataGridView = new System.Windows.Forms.DataGridView();
+            this.TITULO = new System.Windows.Forms.Label();
+            this.lblBienvenida = new System.Windows.Forms.Label();
+            this.timerBienvenida = new System.Windows.Forms.Timer(this.components);
+            this.ChatBox = new System.Windows.Forms.TextBox();
+            this.Enviar_Mensaje = new System.Windows.Forms.Button();
+            this.chatDataGridView = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.connectedPlayersDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chatDataGridView)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(9, 10);
+            this.button1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button1.BackgroundImage")));
+            this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.button1.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button1.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Black;
+            this.button1.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Black;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
+            this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.button1.Location = new System.Drawing.Point(687, 376);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(105, 19);
+            this.button1.Size = new System.Drawing.Size(543, 168);
             this.button1.TabIndex = 0;
-            this.button1.Text = "Conectar con server";
+            this.button1.Text = "CONECTAR CON EL SERVIDOR";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(9, 100);
+            this.button2.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button2.BackgroundImage")));
+            this.button2.FlatAppearance.BorderSize = 0;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button2.Location = new System.Drawing.Point(742, 571);
             this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(66, 20);
+            this.button2.Size = new System.Drawing.Size(187, 60);
             this.button2.TabIndex = 1;
             this.button2.Text = "Registrarse";
             this.button2.UseVisualStyleBackColor = true;
@@ -76,182 +92,184 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(80, 101);
+            this.button3.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button3.BackgroundImage")));
+            this.button3.FlatAppearance.BorderSize = 0;
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button3.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button3.Location = new System.Drawing.Point(961, 571);
             this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 19);
-            this.button3.TabIndex = 2;
+            this.button3.Size = new System.Drawing.Size(187, 60);
+            this.button3.TabIndex = 1;
             this.button3.Text = "Iniciar sesion";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // MiUsuario
             // 
-            this.MiUsuario.Location = new System.Drawing.Point(70, 44);
+            this.MiUsuario.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.MiUsuario.Location = new System.Drawing.Point(980, 352);
             this.MiUsuario.Margin = new System.Windows.Forms.Padding(2);
             this.MiUsuario.Name = "MiUsuario";
-            this.MiUsuario.Size = new System.Drawing.Size(76, 20);
+            this.MiUsuario.Size = new System.Drawing.Size(151, 51);
             this.MiUsuario.TabIndex = 3;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.label1.Location = new System.Drawing.Point(20, 46);
+            this.label1.Location = new System.Drawing.Point(787, 363);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(41, 13);
+            this.label1.Size = new System.Drawing.Size(142, 34);
             this.label1.TabIndex = 4;
-            this.label1.Text = "usuario";
+            this.label1.Text = "USUARIO";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.label2.Location = new System.Drawing.Point(9, 70);
+            this.label2.Location = new System.Drawing.Point(720, 475);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(61, 13);
+            this.label2.Size = new System.Drawing.Size(209, 34);
             this.label2.TabIndex = 5;
-            this.label2.Text = "Contraseña";
+            this.label2.Text = "CONTRASEÑA";
             // 
             // MiPassword
             // 
-            this.MiPassword.Location = new System.Drawing.Point(70, 70);
+            this.MiPassword.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.MiPassword.Location = new System.Drawing.Point(980, 467);
             this.MiPassword.Margin = new System.Windows.Forms.Padding(2);
             this.MiPassword.Name = "MiPassword";
-            this.MiPassword.Size = new System.Drawing.Size(76, 20);
+            this.MiPassword.Size = new System.Drawing.Size(151, 51);
             this.MiPassword.TabIndex = 6;
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(9, 193);
+            this.button4.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button4.BackgroundImage")));
+            this.button4.FlatAppearance.BorderSize = 0;
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button4.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button4.Location = new System.Drawing.Point(11, 363);
             this.button4.Margin = new System.Windows.Forms.Padding(2);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(115, 19);
+            this.button4.Size = new System.Drawing.Size(187, 60);
             this.button4.TabIndex = 7;
-            this.button4.Text = "Consultar Jugadores";
+            this.button4.Text = "Mostrar historial partidas";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(9, 225);
+            this.button5.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button5.BackgroundImage")));
+            this.button5.FlatAppearance.BorderSize = 0;
+            this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button5.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button5.Location = new System.Drawing.Point(11, 475);
             this.button5.Margin = new System.Windows.Forms.Padding(2);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(115, 34);
+            this.button5.Size = new System.Drawing.Size(187, 60);
             this.button5.TabIndex = 8;
-            this.button5.Text = "Mostrar historial partidas";
+            this.button5.Text = "Consultar jugadores online ";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(9, 492);
+            this.button6.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button6.BackgroundImage")));
+            this.button6.FlatAppearance.BorderSize = 0;
+            this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button6.Font = new System.Drawing.Font("MV Boli", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button6.Location = new System.Drawing.Point(28, 931);
             this.button6.Margin = new System.Windows.Forms.Padding(2);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(56, 19);
+            this.button6.Size = new System.Drawing.Size(164, 62);
             this.button6.TabIndex = 9;
             this.button6.Text = "Salir";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
-            // connectedPlayersDataGridView
-            // 
-            this.connectedPlayersDataGridView.BackgroundColor = System.Drawing.Color.White;
-            this.connectedPlayersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.connectedPlayersDataGridView.Location = new System.Drawing.Point(758, 10);
-            this.connectedPlayersDataGridView.Name = "connectedPlayersDataGridView";
-            this.connectedPlayersDataGridView.Size = new System.Drawing.Size(240, 150);
-            this.connectedPlayersDataGridView.TabIndex = 11;
-            this.connectedPlayersDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.connectedPlayersDataGridView_CellContentClick);
-            // 
             // statusLabel
             // 
             this.statusLabel.AutoSize = true;
             this.statusLabel.BackColor = System.Drawing.Color.White;
-            this.statusLabel.Location = new System.Drawing.Point(894, 460);
+            this.statusLabel.Location = new System.Drawing.Point(1857, 1006);
             this.statusLabel.Name = "statusLabel";
             this.statusLabel.Size = new System.Drawing.Size(35, 13);
             this.statusLabel.TabIndex = 10;
             this.statusLabel.Text = "label3";
             this.statusLabel.Click += new System.EventHandler(this.statusLabel_Click);
             // 
-            // btnCrearGrupo
+            // connectedPlayersDataGridView
             // 
-            this.btnCrearGrupo.Location = new System.Drawing.Point(9, 280);
-            this.btnCrearGrupo.Name = "btnCrearGrupo";
-            this.btnCrearGrupo.Size = new System.Drawing.Size(115, 24);
-            this.btnCrearGrupo.TabIndex = 12;
-            this.btnCrearGrupo.Text = "Crear Grupo";
-            this.btnCrearGrupo.UseVisualStyleBackColor = true;
-            this.btnCrearGrupo.Click += new System.EventHandler(this.btnCrearGrupo_Click);
+            this.connectedPlayersDataGridView.BackgroundColor = System.Drawing.Color.White;
+            this.connectedPlayersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.connectedPlayersDataGridView.Location = new System.Drawing.Point(1694, 700);
+            this.connectedPlayersDataGridView.Name = "connectedPlayersDataGridView";
+            this.connectedPlayersDataGridView.Size = new System.Drawing.Size(207, 296);
+            this.connectedPlayersDataGridView.TabIndex = 11;
+            this.connectedPlayersDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.connectedPlayersDataGridView_CellContentClick);
             // 
-            // txtInvitado
+            // TITULO
             // 
-            this.txtInvitado.Location = new System.Drawing.Point(9, 310);
-            this.txtInvitado.Name = "txtInvitado";
-            this.txtInvitado.Size = new System.Drawing.Size(115, 20);
-            this.txtInvitado.TabIndex = 13;
+            this.TITULO.AutoSize = true;
+            this.TITULO.BackColor = System.Drawing.Color.Transparent;
+            this.TITULO.Font = new System.Drawing.Font("MV Boli", 120F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TITULO.ForeColor = System.Drawing.Color.White;
+            this.TITULO.Location = new System.Drawing.Point(768, 71);
+            this.TITULO.Name = "TITULO";
+            this.TITULO.Size = new System.Drawing.Size(376, 210);
+            this.TITULO.TabIndex = 12;
+            this.TITULO.Text = "10X";
+            this.TITULO.Visible = false;
             // 
-            // btnInvitar
+            // lblBienvenida
             // 
-            this.btnInvitar.Location = new System.Drawing.Point(10, 336);
-            this.btnInvitar.Name = "btnInvitar";
-            this.btnInvitar.Size = new System.Drawing.Size(57, 20);
-            this.btnInvitar.TabIndex = 14;
-            this.btnInvitar.Text = "Invitar";
-            this.btnInvitar.UseVisualStyleBackColor = true;
-            this.btnInvitar.Click += new System.EventHandler(this.btnInvitar_Click);
+            this.lblBienvenida.BackColor = System.Drawing.Color.Transparent;
+            this.lblBienvenida.Font = new System.Drawing.Font("MV Boli", 95.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBienvenida.ForeColor = System.Drawing.Color.White;
+            this.lblBienvenida.Location = new System.Drawing.Point(377, 308);
+            this.lblBienvenida.Name = "lblBienvenida";
+            this.lblBienvenida.Size = new System.Drawing.Size(1259, 210);
+            this.lblBienvenida.TabIndex = 13;
+            this.lblBienvenida.Text = "BIENVENIDO A10X";
+            this.lblBienvenida.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblBienvenida.Visible = false;
             // 
-            // txtMensajeGrupo
+            // timerBienvenida
             // 
-            this.txtMensajeGrupo.Location = new System.Drawing.Point(12, 390);
-            this.txtMensajeGrupo.Multiline = true;
-            this.txtMensajeGrupo.Name = "txtMensajeGrupo";
-            this.txtMensajeGrupo.Size = new System.Drawing.Size(112, 50);
-            this.txtMensajeGrupo.TabIndex = 15;
-            this.txtMensajeGrupo.TextChanged += new System.EventHandler(this.txtMensajeGrupo_TextChanged);
+            this.timerBienvenida.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // btnEnviarMensajeGrupo
+            // ChatBox
             // 
-            this.btnEnviarMensajeGrupo.Location = new System.Drawing.Point(49, 446);
-            this.btnEnviarMensajeGrupo.Name = "btnEnviarMensajeGrupo";
-            this.btnEnviarMensajeGrupo.Size = new System.Drawing.Size(75, 23);
-            this.btnEnviarMensajeGrupo.TabIndex = 16;
-            this.btnEnviarMensajeGrupo.Text = "Enviar Mensaje Grupo";
-            this.btnEnviarMensajeGrupo.UseVisualStyleBackColor = true;
-            this.btnEnviarMensajeGrupo.Click += new System.EventHandler(this.btnEnviarMensajeGrupo_Click);
+            this.ChatBox.Location = new System.Drawing.Point(1694, 308);
+            this.ChatBox.Name = "ChatBox";
+            this.ChatBox.Size = new System.Drawing.Size(207, 20);
+            this.ChatBox.TabIndex = 14;
             // 
-            // btnSalirGrupo
+            // Enviar_Mensaje
             // 
-            this.btnSalirGrupo.Location = new System.Drawing.Point(70, 336);
-            this.btnSalirGrupo.Name = "btnSalirGrupo";
-            this.btnSalirGrupo.Size = new System.Drawing.Size(57, 20);
-            this.btnSalirGrupo.TabIndex = 17;
-            this.btnSalirGrupo.Text = "Salir ";
-            this.btnSalirGrupo.UseVisualStyleBackColor = true;
+            this.Enviar_Mensaje.Location = new System.Drawing.Point(1830, 420);
+            this.Enviar_Mensaje.Name = "Enviar_Mensaje";
+            this.Enviar_Mensaje.Size = new System.Drawing.Size(68, 25);
+            this.Enviar_Mensaje.TabIndex = 15;
+            this.Enviar_Mensaje.Text = "Enviar";
+            this.Enviar_Mensaje.UseVisualStyleBackColor = true;
+            this.Enviar_Mensaje.Click += new System.EventHandler(this.Enviar_Mensaje_Click);
             // 
-            // label3
+            // chatDataGridView
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(0, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(35, 13);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "label3";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.label4.ForeColor = System.Drawing.Color.Snow;
-            this.label4.Location = new System.Drawing.Point(10, 370);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(37, 17);
-            this.label4.TabIndex = 19;
-            this.label4.Text = "Chat";
+            this.chatDataGridView.BackgroundColor = System.Drawing.Color.White;
+            this.chatDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.chatDataGridView.Location = new System.Drawing.Point(1694, 2);
+            this.chatDataGridView.Name = "chatDataGridView";
+            this.chatDataGridView.Size = new System.Drawing.Size(207, 296);
+            this.chatDataGridView.TabIndex = 16;
             // 
             // Form1
             // 
@@ -260,15 +278,12 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.ClientSize = new System.Drawing.Size(1010, 531);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.btnSalirGrupo);
-            this.Controls.Add(this.btnEnviarMensajeGrupo);
-            this.Controls.Add(this.txtMensajeGrupo);
-            this.Controls.Add(this.btnInvitar);
-            this.Controls.Add(this.txtInvitado);
-            this.Controls.Add(this.btnCrearGrupo);
+            this.ClientSize = new System.Drawing.Size(1904, 1041);
+            this.Controls.Add(this.chatDataGridView);
+            this.Controls.Add(this.Enviar_Mensaje);
+            this.Controls.Add(this.ChatBox);
+            this.Controls.Add(this.lblBienvenida);
+            this.Controls.Add(this.TITULO);
             this.Controls.Add(this.connectedPlayersDataGridView);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.button6);
@@ -284,8 +299,10 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.connectedPlayersDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chatDataGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -303,16 +320,14 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.DataGridView connectedPlayersDataGridView;
         private System.Windows.Forms.Label statusLabel;
-        private System.Windows.Forms.Button btnCrearGrupo;
-        private System.Windows.Forms.TextBox txtInvitado;
-        private System.Windows.Forms.Button btnInvitar;
-        private System.Windows.Forms.TextBox txtMensajeGrupo;
-        private System.Windows.Forms.Button btnEnviarMensajeGrupo;
-        private System.Windows.Forms.Button btnSalirGrupo;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.DataGridView connectedPlayersDataGridView;
+        private System.Windows.Forms.Label TITULO;
+        private System.Windows.Forms.Label lblBienvenida;
+        private System.Windows.Forms.Timer timerBienvenida;
+        private System.Windows.Forms.TextBox ChatBox;
+        private System.Windows.Forms.Button Enviar_Mensaje;
+        private System.Windows.Forms.DataGridView chatDataGridView;
     }
 }
 

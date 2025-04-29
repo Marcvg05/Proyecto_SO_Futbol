@@ -68,42 +68,13 @@ C:\SO\Proyecto SO\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
 C:\SO\Proyecto SO\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
 C:\SO\Proyecto SO\CLiente\obj\Debug\Cliente.exe
 C:\SO\Proyecto SO\CLiente\obj\Debug\Cliente.pdb
-D:\Archivos\Descargas Chrome\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Form.csproj.AssemblyReference.cache
-D:\Archivos\Descargas Chrome\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.exe
-D:\Archivos\Descargas Chrome\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.pdb
-C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Form.csproj.AssemblyReference.cache
-C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.exe
-C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.pdb
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\bin\Debug\Cliente.exe.config
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\bin\Debug\Cliente.exe
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\bin\Debug\Cliente.pdb
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Form.csproj.AssemblyReference.cache
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.Form1.resources
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.Properties.Resources.resources
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Form.csproj.GenerateResource.cache
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Form.csproj.CoreCompileInputs.cache
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.exe
-C:\Users\marcv\Downloads\Proyecto SO\Proyecto SO\Cliente\obj\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Cliente.pdb
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\bin\Debug\Cliente.exe.config
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\bin\Debug\Cliente.exe
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\bin\Debug\Cliente.pdb
-C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Cliente.Form1.resources
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Cliente.Properties.Resources.resources
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
-C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Cliente.exe
-C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Cliente.pdb
-C:\SO\Proyecto SO\CLiente\obj\Debug\Cliente.InvitationForm.resources
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\bin\Debug\Cliente.exe.config
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\bin\Debug\Cliente.exe
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\bin\Debug\Cliente.pdb
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Cliente.Form1.resources
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Cliente.InvitationForm.resources
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Cliente.Properties.Resources.resources
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Cliente.exe
-D:\Archivos\Descargas Chrome\CLiente (2)\CLiente\obj\Debug\Cliente.pdb
-C:\Users\GARCI\OneDrive\Escritorio\Proyecto SO\CLiente\obj\Debug\Cliente.InvitationForm.resources

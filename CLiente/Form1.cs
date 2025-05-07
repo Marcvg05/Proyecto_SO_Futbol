@@ -233,7 +233,10 @@ namespace Cliente
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(MiUsuario.Text) || string.IsNullOrWhiteSpace(MiPassword.Text))
+            string username = MiUsuario.Text.Trim();
+            string password = MiPassword.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 MessageBox.Show("Usuario y contraseña son obligatorios");
                 return;
@@ -241,7 +244,7 @@ namespace Cliente
 
             try
             {
-                string mensaje = $"1|{MiUsuario.Text.Trim()}|{MiPassword.Text.Trim()}";
+                string mensaje = $"1|{username}|{password}";
                 byte[] msg = Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
@@ -252,11 +255,15 @@ namespace Cliente
                 if (respuesta.Contains("Registro exitoso"))
                 {
                     MessageBox.Show("¡Registro completado con éxito!");
-                    statusLabel.Text = "Usuario registrado - " + MiUsuario.Text;
+                    statusLabel.Text = "Usuario registrado - " + username;
+                }
+                else if (respuesta.Contains("Usuario ya existe"))
+                {
+                    MessageBox.Show("Error: El usuario ya existe");
                 }
                 else
                 {
-                    MessageBox.Show(respuesta.Split(',')[0]);
+                    MessageBox.Show("Error: Fallo en el registro");
                 }
             }
             catch (SocketException ex)
@@ -298,6 +305,10 @@ namespace Cliente
                 Enviar_Mensaje.Visible = true;
                 ChatBox.Visible = true;
                 chatDataGridView.Visible = true;
+                CrearPartidaButton.Visible = true;
+                InvitarJugadorButton.Visible = true;
+                InvitarJugadorTextBox.Visible = true;
+                MostrarJugadoresButton.Visible = true;
             }
             catch (Exception ex)
             {
@@ -500,7 +511,30 @@ namespace Cliente
 
             try
             {
-                if (message.StartsWith("UPDATE|"))
+                if (message.StartsWith("CHAT|")) // Mensajes de chat
+                {
+                    string chatMessage = message.Substring(5); // Elimina "CHAT|"
+
+                    // Extrae el nombre del jugador
+                    int sep = chatMessage.IndexOf(':');
+                    if (sep > 0)
+                    {
+                        string sender = chatMessage.Substring(0, sep).Trim();
+                        string contenido = chatMessage.Substring(sep + 1).Trim();
+
+                        // Evita mostrar el mensaje dos veces si viene de uno mismo
+                        if (!sender.Equals(MiUsuario.Text, StringComparison.OrdinalIgnoreCase))
+                        {
+                            AddChatMessage($"{sender}: {contenido}");
+                        }
+                    }
+                    else
+                    {
+                        // Si por alguna razón no hay ':', lo mostramos tal cual
+                        AddChatMessage(chatMessage);
+                    }
+                }
+                else if (message.StartsWith("UPDATE|"))
                 {
                     // Formato esperado: "UPDATE|num_jugadores/jugador1/jugador2/..."
                     string[] parts = message.Split('|');
@@ -535,6 +569,45 @@ namespace Cliente
                     // Mensajes de éxito del servidor
                     string cleanMessage = message.Split(',')[0];
                     MessageBox.Show(cleanMessage);
+                }
+                else if (message.StartsWith("INVITACION|"))
+                {
+                    string invitacion = message.Substring(11); // Elimina "INVITACION|"
+                    DialogResult result = MessageBox.Show(invitacion, "Invitación", MessageBoxButtons.YesNo);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Extraer el nombre del creador de la partida
+                        string creador = invitacion.Split(' ')[0]; // Asume que el mensaje tiene formato "Creador te ha invitado..."
+                        try
+                        {
+                            string mensaje = $"11|{creador}|{MiUsuario.Text}"; // Código 11 para unirse a una partida
+                            byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                            server.Send(msg);
+
+                            MessageBox.Show("Te has unido a la partida");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error al unirse a la partida: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Has rechazado la invitación");
+                    }
+                }
+                else if (message.StartsWith("UNIRSE|"))
+                {
+                    // Nuevo código para unirse a una partida
+                    string[] partes = message.Split('|');
+                    if (partes.Length == 2)
+                    {
+                        string creador = partes[1];
+
+                        // Mostrar mensaje de éxito al unirse a la partida
+                        MessageBox.Show($"Te has unido a la partida de {creador}");
+                    }
                 }
                 else
                 {
@@ -598,13 +671,12 @@ namespace Cliente
 
             try
             {
-                // Mostrar el mensaje localmente primero
-                //AddChatMessage($"Tú: {ChatBox.Text}");
+                string mensaje = $"7|{MiUsuario.Text}|{ChatBox.Text}";
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
 
-                // Enviar al servidor (formato: "7|username|message")
-                //string mensaje = $"7|{username}|{ChatBox.Text}";
-                //byte[] msg = Encoding.ASCII.GetBytes(mensaje);
-                //server.Send(msg);
+                // Mostrar el mensaje localmente
+                AddChatMessage($"Tú: {ChatBox.Text}");
 
                 ChatBox.Text = "";
                 ChatBox.Focus();
@@ -612,6 +684,106 @@ namespace Cliente
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al enviar mensaje: {ex.Message}");
+            }
+        }
+        private void AddChatMessage(string message)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((MethodInvoker)delegate { AddChatMessage(message); });
+                return;
+            }
+
+            DataRow newRow = chatTable.NewRow();
+            newRow["Mensaje"] = message;
+            chatTable.Rows.Add(newRow);
+
+            // Desplazar automáticamente al final
+            chatDataGridView.FirstDisplayedScrollingRowIndex = chatDataGridView.RowCount - 1;
+        }
+
+        private void CrearPartidaButton_Click(object sender, EventArgs e)
+        {
+            if (server == null || !server.Connected)
+            {
+                MessageBox.Show("No estás conectado al servidor");
+                return;
+            }
+
+            try
+            {
+                string mensaje = $"8|{MiUsuario.Text}";
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+
+                byte[] buffer = new byte[1024];
+                int bytesRec = server.Receive(buffer);
+                string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec).Trim();
+
+                MessageBox.Show(respuesta);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al crear partida: {ex.Message}");
+            }
+        }
+
+        private void InvitarJugadorButton_Click(object sender, EventArgs e)
+        {
+            if (server == null || !server.Connected)
+            {
+                MessageBox.Show("No estás conectado al servidor");
+                return;
+            }
+
+            string invitado = InvitarJugadorTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(invitado))
+            {
+                MessageBox.Show("Escribe el nombre del jugador a invitar");
+                return;
+            }
+
+            try
+            {
+                string mensaje = $"9|{invitado}";
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+
+                byte[] buffer = new byte[1024];
+                int bytesRec = server.Receive(buffer);
+                string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec).Trim();
+
+                MessageBox.Show(respuesta);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al invitar jugador: {ex.Message}");
+            }
+        }
+
+        private void MostrarJugadoresButton_Click(object sender, EventArgs e)
+        {
+            if (server == null || !server.Connected)
+            {
+                MessageBox.Show("No estás conectado al servidor");
+                return;
+            }
+
+            try
+            {
+                string mensaje = "10|";
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+
+                byte[] buffer = new byte[1024];
+                int bytesRec = server.Receive(buffer);
+                string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec).Trim();
+
+                MessageBox.Show(respuesta);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al obtener jugadores: {ex.Message}");
             }
         }
     }

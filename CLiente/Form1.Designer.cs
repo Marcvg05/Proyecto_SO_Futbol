@@ -48,6 +48,10 @@
             this.ChatBox = new System.Windows.Forms.TextBox();
             this.Enviar_Mensaje = new System.Windows.Forms.Button();
             this.chatDataGridView = new System.Windows.Forms.DataGridView();
+            this.CrearPartidaButton = new System.Windows.Forms.Button();
+            this.InvitarJugadorButton = new System.Windows.Forms.Button();
+            this.InvitarJugadorTextBox = new System.Windows.Forms.TextBox();
+            this.MostrarJugadoresButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.connectedPlayersDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chatDataGridView)).BeginInit();
             this.SuspendLayout();
@@ -271,6 +275,46 @@
             this.chatDataGridView.Size = new System.Drawing.Size(207, 296);
             this.chatDataGridView.TabIndex = 16;
             // 
+            // CrearPartidaButton
+            // 
+            this.CrearPartidaButton.Location = new System.Drawing.Point(28, 617);
+            this.CrearPartidaButton.Name = "CrearPartidaButton";
+            this.CrearPartidaButton.Size = new System.Drawing.Size(150, 50);
+            this.CrearPartidaButton.TabIndex = 17;
+            this.CrearPartidaButton.Text = "Crear Partida";
+            this.CrearPartidaButton.UseVisualStyleBackColor = true;
+            this.CrearPartidaButton.Visible = false;
+            this.CrearPartidaButton.Click += new System.EventHandler(this.CrearPartidaButton_Click);
+            // 
+            // InvitarJugadorButton
+            // 
+            this.InvitarJugadorButton.Location = new System.Drawing.Point(28, 713);
+            this.InvitarJugadorButton.Name = "InvitarJugadorButton";
+            this.InvitarJugadorButton.Size = new System.Drawing.Size(150, 50);
+            this.InvitarJugadorButton.TabIndex = 18;
+            this.InvitarJugadorButton.Text = "Invitar Jugador";
+            this.InvitarJugadorButton.UseVisualStyleBackColor = true;
+            this.InvitarJugadorButton.Visible = false;
+            this.InvitarJugadorButton.Click += new System.EventHandler(this.InvitarJugadorButton_Click);
+            // 
+            // InvitarJugadorTextBox
+            // 
+            this.InvitarJugadorTextBox.Location = new System.Drawing.Point(28, 687);
+            this.InvitarJugadorTextBox.Name = "InvitarJugadorTextBox";
+            this.InvitarJugadorTextBox.Size = new System.Drawing.Size(150, 20);
+            this.InvitarJugadorTextBox.TabIndex = 19;
+            this.InvitarJugadorTextBox.Visible = false;
+            // 
+            // MostrarJugadoresButton
+            // 
+            this.MostrarJugadoresButton.Location = new System.Drawing.Point(28, 780);
+            this.MostrarJugadoresButton.Name = "MostrarJugadoresButton";
+            this.MostrarJugadoresButton.Size = new System.Drawing.Size(150, 50);
+            this.MostrarJugadoresButton.Text = "Jugadores en Partida";
+            this.MostrarJugadoresButton.UseVisualStyleBackColor = true;
+            this.MostrarJugadoresButton.Visible = false;
+            this.MostrarJugadoresButton.Click += new System.EventHandler(this.MostrarJugadoresButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -296,6 +340,10 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
+            this.Controls.Add(this.CrearPartidaButton);
+            this.Controls.Add(this.InvitarJugadorButton);
+            this.Controls.Add(this.InvitarJugadorTextBox);
+            this.Controls.Add(this.MostrarJugadoresButton);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -328,6 +376,10 @@
         private System.Windows.Forms.TextBox ChatBox;
         private System.Windows.Forms.Button Enviar_Mensaje;
         private System.Windows.Forms.DataGridView chatDataGridView;
+        private System.Windows.Forms.Button CrearPartidaButton;
+        private System.Windows.Forms.Button InvitarJugadorButton;
+        private System.Windows.Forms.TextBox InvitarJugadorTextBox;
+        private System.Windows.Forms.Button MostrarJugadoresButton;
     }
 }
 

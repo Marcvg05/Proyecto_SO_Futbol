@@ -16,6 +16,7 @@
 #define DB_PASS "mysql"
 #define DB_NAME "T7_BBDD"
 #define MAX_PLAYERS 100
+#define MAX_PLAYERS_PER_GAME 3
 #define NOTIFICATION_MSG_SIZE 512
 
 MYSQL *conn;
@@ -32,16 +33,18 @@ typedef struct {
     int num;
 } ListaConectados;
 
-typedef struct{
-    Conectado player;
-    int puntuacion;
-    int posicion;
-}jugador;
+// Declarar las variables globales para gestionar las partidas
+typedef struct {
+    char creador[50];
+    char jugadores[MAX_PLAYERS_PER_GAME][50];
+    int num_jugadores;
+} Partida;
 
-typedef struct{
-    jugador jugadores[3];
-    int ronda;
-}Partida;
+Partida partidas[MAX_PLAYERS];
+int num_partidas = 0;
+
+// Declarar el prototipo de la función BuscarPartidaPorCreador
+int BuscarPartidaPorCreador(const char *creador);
 
 // Estructura para el sistema de notificaciones
 typedef struct {
@@ -78,8 +81,18 @@ void connect_db() {
         exit(1);
     }
 }
-
+void handle_signal(int signal) {
+    if (signal == SIGINT || signal == SIGTERM) {
+        printf("Señal de terminación recibida. Cerrando servidor...\n");
+        shutdown_requested = 1;
+    }
+}
 int register_player(MYSQL *conn, const char *username, const char *password) {
+    if (username == NULL || password == NULL || strlen(username) == 0 || strlen(password) == 0) {
+        fprintf(stderr, "Error: Usuario o contraseña vacíos\n");
+        return -1;
+    }
+
     char query[1024];
     snprintf(query, sizeof(query), 
              "SELECT username FROM players WHERE username = '%s'", username);
@@ -99,7 +112,7 @@ int register_player(MYSQL *conn, const char *username, const char *password) {
     mysql_free_result(result);
 
     if (num_rows > 0) {
-        return 0;
+        return 0; // Usuario ya existe
     }
 
     snprintf(query, sizeof(query),
@@ -111,7 +124,7 @@ int register_player(MYSQL *conn, const char *username, const char *password) {
         return -1;
     }
 
-    return 1;
+    return 1; // Registro exitoso
 }
 
 int check_login_credentials(MYSQL *conn, const char *username, const char *password) {
@@ -255,6 +268,28 @@ void send_notification(NotificationHandler *handler, const char *message, int br
     }
 }
 
+// Función para buscar una partida por el nombre del creador
+int BuscarPartidaPorCreador(const char *creador) {
+    for (int i = 0; i < num_partidas; i++) {
+        if (strcmp(partidas[i].creador, creador) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Función para añadir un jugador a una partida
+int AñadirJugadorAPartida(const char *creador, const char *jugador) {
+    int index = BuscarPartidaPorCreador(creador);
+    if (index == -1) return -1; // Partida no encontrada
+
+    if (partidas[index].num_jugadores >= MAX_PLAYERS_PER_GAME) return -2; // Partida llena
+
+    strncpy(partidas[index].jugadores[partidas[index].num_jugadores], jugador, 50);
+    partidas[index].num_jugadores++;
+    return 0;
+}
+
 // Manejador de clientes
 void *handle_client(void *arg) {
     ThreadData *data = (ThreadData *)arg;
@@ -262,19 +297,13 @@ void *handle_client(void *arg) {
     ListaConectados *lista = data->lista;
     pthread_mutex_t *mutex = data->mutex;
     NotificationHandler *notif_handler = data->notif_handler;
-    
+
     char buff[2048], buff2[2048];
     int ret;
 
-    struct timeval tv = {30, 0};
-    setsockopt(sock_conn, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
-
-    int flags = fcntl(sock_conn, F_GETFL, 0);
-    fcntl(sock_conn, F_SETFL, flags | O_NONBLOCK);
-
     printf("Nuevo cliente conectado. Hilo: %ld\n", pthread_self());
 
-    while(!shutdown_requested) {
+    while (!shutdown_requested) {
         memset(buff, 0, sizeof(buff));
         memset(buff2, 0, sizeof(buff2));
 
@@ -316,7 +345,7 @@ void *handle_client(void *arg) {
             if (p != NULL) {
                 strncpy(password, p, sizeof(password) - 1);
                 password[sizeof(password) - 1] = '\0';
-                
+
                 int reg_status = register_player(conn, data->nombre, password);
                 if (reg_status == 1) {
                     strcpy(buff2, "Registro exitoso,");
@@ -328,26 +357,26 @@ void *handle_client(void *arg) {
             } else {
                 strcpy(buff2, "Error: Datos incompletos,");
             }
-        }
-        else if (codigo == 2) { // Login
+        } else if (codigo == 2) { // Login
             p = strtok(NULL, "|");
             char password[50];
             if (p != NULL) {
                 strncpy(password, p, sizeof(password) - 1);
                 password[sizeof(password) - 1] = '\0';
-                
+
                 int login_status = check_login_credentials(conn, data->nombre, password);
                 if (login_status == 1) {
-		    strcpy(buff2, "Login exitoso,");
-		    
-		    pthread_mutex_lock(mutex);
-		    int result = NuevoJugador(lista, data->nombre, sock_conn);
-		    if (result == 0) {
-			char notif_msg[256];
-   			snprintf(notif_msg, sizeof(notif_msg), "LOGIN:%s", data->nombre); // Prefijo LOGIN
-   			send_notification(notif_handler, notif_msg, 1);
-		    }
-		    pthread_mutex_unlock(mutex); 
+                    strcpy(buff2, "Login exitoso,");
+
+                    pthread_mutex_lock(mutex);
+                    int result = NuevoJugador(lista, data->nombre, sock_conn);
+                    if (result == 0) {
+                        char notif_msg[256];
+                        snprintf(notif_msg, sizeof(notif_msg), "LOGIN:%s", data->nombre);
+                        send_notification(notif_handler, notif_msg, 1);
+                    }
+                    pthread_mutex_unlock(mutex);
+
                     if (result == -1) {
                         strcat(buff2, " Error: Lista llena,");
                     } else if (result == -2) {
@@ -359,8 +388,7 @@ void *handle_client(void *arg) {
             } else {
                 strcpy(buff2, "Error: Datos incompletos,");
             }
-        }
-        else if (codigo == 3) { // Crear partida
+        }else if (codigo == 3) { // Crear partida
             p=strtok(NULL,"|");
             
             
@@ -433,9 +461,166 @@ void *handle_client(void *arg) {
             strcpy(buff2, "Sesión cerrada correctamente,");
             write(sock_conn, buff2, strlen(buff2));
             break;
-        }
-        
-        else {
+        } 
+        else if (codigo == 7) { // Chat
+            char remitente[50];
+            char mensaje_usuario[512]; // Reducir el tamaño máximo del mensaje
+
+            if (p != NULL) {
+                strncpy(remitente, p, sizeof(remitente) - 1);
+                remitente[sizeof(remitente) - 1] = '\0';
+
+                p = strtok(NULL, "|");
+                if (p != NULL) {
+                    strncpy(mensaje_usuario, p, sizeof(mensaje_usuario) - 1);
+                    mensaje_usuario[sizeof(mensaje_usuario) - 1] = '\0';
+
+                    pthread_mutex_lock(mutex);
+                    int pos = DamePosicion(lista, remitente);
+                    pthread_mutex_unlock(mutex);
+
+                    if (pos == -1) {
+                        strcpy(buff2, "Error: No autenticado");
+                    } else {
+                        // Aumentar el tamaño del buffer para evitar truncamientos
+                        char mensaje_chat[NOTIFICATION_MSG_SIZE + 100]; // NOTIFICATION_MSG_SIZE es 512
+
+                        // Validar el tamaño antes de usar snprintf
+                        size_t required_size = strlen(remitente) + strlen(mensaje_usuario) + 7; // "CHAT|", ": ", y '\0'
+                        if (required_size < sizeof(mensaje_chat)) {
+                            snprintf(mensaje_chat, sizeof(mensaje_chat), "CHAT|%s: %s", remitente, mensaje_usuario);
+
+                            pthread_mutex_lock(mutex);
+                            for (int i = 0; i < lista->num; i++) {
+                                int sock = lista->conectados[i].socket;
+                                if (write(sock, mensaje_chat, strlen(mensaje_chat)) <= 0) {
+                                    perror("Error enviando mensaje a cliente");
+                                    Eliminar(lista, lista->conectados[i].nombre);
+                                    i--;
+                                }
+                            }
+                            pthread_mutex_unlock(mutex);
+
+                            strcpy(buff2, "Mensaje enviado");
+                        } else {
+                            strcpy(buff2, "Error: Mensaje demasiado largo");
+                        }
+                    }
+                } else {
+                    strcpy(buff2, "Error: Mensaje vacío");
+                }
+            } else {
+                strcpy(buff2, "Error: Datos incompletos");
+            }
+        } else if (codigo == 8) { // Crear partida
+            pthread_mutex_lock(mutex);
+            int pos = DamePosicion(lista, data->nombre);
+            pthread_mutex_unlock(mutex);
+
+            if (pos == -1) {
+                strcpy(buff2, "Error: No autenticado");
+            } else {
+                if (BuscarPartidaPorCreador(data->nombre) != -1) {
+                    strcpy(buff2, "Error: Ya tienes una partida creada");
+                } else {
+                    // Crear nueva partida
+                    strncpy(partidas[num_partidas].creador, data->nombre, 50);
+                    strncpy(partidas[num_partidas].jugadores[0], data->nombre, 50);
+                    partidas[num_partidas].num_jugadores = 1;
+                    num_partidas++;
+
+                    snprintf(buff2, sizeof(buff2), "Partida creada por %s", data->nombre);
+                }
+            }
+            write(sock_conn, buff2, strlen(buff2));
+        } else if (codigo == 9) { // Enviar invitación
+            char invitado[50];
+            if (p != NULL) {
+                strncpy(invitado, p, sizeof(invitado) - 1);
+                invitado[sizeof(invitado) - 1] = '\0';
+
+                pthread_mutex_lock(mutex);
+                int pos_invitado = DamePosicion(lista, invitado);
+                pthread_mutex_unlock(mutex);
+
+                if (pos_invitado == -1) {
+                    strcpy(buff2, "Error: Jugador no encontrado o no conectado");
+                } else {
+                    int sock_invitado = lista->conectados[pos_invitado].socket;
+                    char invitacion[256];
+                    snprintf(invitacion, sizeof(invitacion), "INVITACION|%s te ha invitado a una partida", data->nombre);
+
+                    if (write(sock_invitado, invitacion, strlen(invitacion)) <= 0) {
+                        perror("Error enviando invitación");
+                    } else {
+                        strcpy(buff2, "Invitación enviada");
+                    }
+                }
+            } else {
+                strcpy(buff2, "Error: Datos incompletos");
+            }
+            write(sock_conn, buff2, strlen(buff2));
+        } else if (codigo == 10) { // Obtener jugadores de la partida
+            pthread_mutex_lock(mutex);
+            int pos = DamePosicion(lista, data->nombre);
+            pthread_mutex_unlock(mutex);
+
+            if (pos == -1) {
+                strcpy(buff2, "Error: No autenticado");
+            } else {
+                int index = -1;
+
+                // Buscar la partida en la que el jugador está participando
+                for (int i = 0; i < num_partidas; i++) {
+                    for (int j = 0; j < partidas[i].num_jugadores; j++) {
+                        if (strcmp(partidas[i].jugadores[j], data->nombre) == 0) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    if (index != -1) break;
+                }
+
+                if (index == -1) {
+                    strcpy(buff2, "Error: No estás en una partida");
+                } else {
+                    snprintf(buff2, sizeof(buff2), "Jugadores en la partida: ");
+                    for (int i = 0; i < partidas[index].num_jugadores; i++) {
+                        strncat(buff2, partidas[index].jugadores[i], sizeof(buff2) - strlen(buff2) - 1);
+                        if (i < partidas[index].num_jugadores - 1) {
+                            strncat(buff2, ", ", sizeof(buff2) - strlen(buff2) - 1);
+                        }
+                    }
+                }
+            }
+            write(sock_conn, buff2, strlen(buff2));
+        } else if (codigo == 11) { // Unirse a una partida
+            char creador[50];
+            if (p != NULL) {
+                strncpy(creador, p, sizeof(creador) - 1);
+                creador[sizeof(creador) - 1] = '\0';
+
+                pthread_mutex_lock(mutex);
+                int pos = DamePosicion(lista, data->nombre);
+                pthread_mutex_unlock(mutex);
+
+                if (pos == -1) {
+                    strcpy(buff2, "Error: No autenticado");
+                } else {
+                    int result = AñadirJugadorAPartida(creador, data->nombre);
+                    if (result == 0) {
+                        snprintf(buff2, sizeof(buff2), "Te has unido a la partida de %s", creador);
+                    } else if (result == -1) {
+                        strcpy(buff2, "Error: Partida no encontrada");
+                    } else if (result == -2) {
+                        strcpy(buff2, "Error: Partida llena");
+                    }
+                }
+            } else {
+                strcpy(buff2, "Error: Datos incompletos");
+            }
+            write(sock_conn, buff2, strlen(buff2));
+        } else {
             strcpy(buff2, "Error: Código no válido,");
         }
 
@@ -448,24 +633,18 @@ void *handle_client(void *arg) {
     if (strlen(data->nombre) > 0) {
         pthread_mutex_lock(mutex);
         Eliminar(lista, data->nombre);
-        
+
         char notif_msg[256];
-        snprintf(notif_msg, sizeof(notif_msg), 
-                 "Desconexión: %s", data->nombre);
+        snprintf(notif_msg, sizeof(notif_msg), "LOGOUT:%s", data->nombre);
         send_notification(notif_handler, notif_msg, 1);
-        
+
         pthread_mutex_unlock(mutex);
     }
-    
+
     close(sock_conn);
+    free(data->socket);
     free(data);
     printf("Hilo %ld finalizado\n", pthread_self());
-    pthread_exit(NULL);
-}
-
-// Manejador de señales
-void handle_signal(int sig) {
-    shutdown_requested = 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -473,7 +652,7 @@ int main(int argc, char *argv[]) {
     int sock_listen, sock_conn;
     struct sockaddr_in serv_adr;
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    
+
     // Configurar manejador de señales
     struct sigaction sa;
     sa.sa_handler = handle_signal;
@@ -481,121 +660,114 @@ int main(int argc, char *argv[]) {
     sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
-    
+
     // Inicializar sistema de notificaciones
     NotificationHandler notif_handler;
     notif_handler.lista = &miLista;
     notif_handler.mutex = &mutex;
-    
+
     if (pipe(notif_handler.notification_pipe) == -1) {
         perror("Error creando pipe");
         exit(EXIT_FAILURE);
     }
-    
+
     for (int i = 0; i < 2; i++) {
         int flags = fcntl(notif_handler.notification_pipe[i], F_GETFL);
         fcntl(notif_handler.notification_pipe[i], F_SETFL, flags | O_NONBLOCK);
     }
-    
+
     // Conectar a la base de datos
     connect_db();
-    
+
     // Crear thread de notificaciones
     if (pthread_create(&notif_handler.thread_id, NULL, notification_thread, &notif_handler) != 0) {
         perror("Error creando thread de notificaciones");
         exit(EXIT_FAILURE);
     }
-    
+
     // Configurar socket del servidor
     if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Error creando socket");
         exit(EXIT_FAILURE);
     }
-    
-    // Configurar opciones del socket
+
     int optval = 1;
     if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval))) {
         perror("Error configurando SO_REUSEADDR");
         close(sock_listen);
         exit(EXIT_FAILURE);
     }
-    
+
     int puerto = 50076;
     memset(&serv_adr, 0, sizeof(serv_adr));
     serv_adr.sin_family = AF_INET;
     serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_adr.sin_port = htons(puerto);
-    
+
     if (bind(sock_listen, (struct sockaddr *)&serv_adr, sizeof(serv_adr)) < 0) {
         perror("Error en bind");
         close(sock_listen);
         exit(EXIT_FAILURE);
     }
-    
+
     if (listen(sock_listen, 5) < 0) {
         perror("Error en listen");
         close(sock_listen);
         exit(EXIT_FAILURE);
     }
-    
+
     printf("Servidor iniciado. Esperando conexiones...\n");
-    
-    // Bucle principal del servidor
+
     while (!shutdown_requested) {
-        fd_set readfds;
-        FD_ZERO(&readfds);
-        FD_SET(sock_listen, &readfds);
-        
-        struct timeval tv = {1, 0};
-        int ready = select(sock_listen + 1, &readfds, NULL, NULL, &tv);
-        
-        if (ready < 0) {
+        sock_conn = accept(sock_listen, NULL, NULL);
+        if (sock_conn < 0) {
             if (errno == EINTR) continue;
-            perror("Error en select");
-            break;
+            perror("Error aceptando conexión");
+            continue;
         }
-        
-        if (ready > 0 && FD_ISSET(sock_listen, &readfds)) {
-            sock_conn = accept(sock_listen, NULL, NULL);
-            if (sock_conn < 0) {
-                perror("Error aceptando conexión");
-                continue;
-            }
-            
-            printf("Nueva conexión aceptada\n");
-            
-            ThreadData *data = malloc(sizeof(ThreadData));
-            *data->socket = sock_conn;
-            data->lista = &miLista;
-            data->mutex = &mutex;
-            data->notif_handler = &notif_handler;
-            data->nombre[0] = '\0';
-            
-            pthread_t thread;
-            if (pthread_create(&thread, NULL, handle_client, data) != 0) {
-                perror("Error creando hilo para cliente");
-                free(data);
-                close(sock_conn);
-            }
-            
-            pthread_detach(thread);
+
+        printf("Nueva conexión aceptada\n");
+
+        ThreadData *data = malloc(sizeof(ThreadData));
+        if (data == NULL) {
+            perror("Error asignando memoria para ThreadData");
+            close(sock_conn);
+            continue;
         }
+
+        data->socket = malloc(sizeof(int));
+        if (data->socket == NULL) {
+            perror("Error asignando memoria para socket");
+            free(data);
+            close(sock_conn);
+            continue;
+        }
+
+        *(data->socket) = sock_conn;
+        data->lista = &miLista;
+        data->mutex = &mutex;
+        data->notif_handler = &notif_handler;
+        data->nombre[0] = '\0';
+
+        pthread_t thread;
+        if (pthread_create(&thread, NULL, handle_client, data) != 0) {
+            perror("Error creando hilo para cliente");
+            free(data->socket);
+            free(data);
+            close(sock_conn);
+        }
+
+        pthread_detach(thread);
     }
-    
-    // Limpieza al finalizar
+
     printf("Cerrando servidor...\n");
-    
-    // Cerrar pipe de notificaciones
+
     close(notif_handler.notification_pipe[0]);
     close(notif_handler.notification_pipe[1]);
-    
-    // Esperar a que el thread de notificaciones termine
     pthread_join(notif_handler.thread_id, NULL);
-    
-    // Cerrar socket y base de datos
     close(sock_listen);
     mysql_close(conn);
-    
+
     printf("Servidor cerrado correctamente\n");
     return 0;
 }

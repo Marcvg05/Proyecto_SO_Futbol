@@ -98,3 +98,98 @@ C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-ma
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Properties.Resources.resources
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
 C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe.config
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Form1.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe.config
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Form1.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.FormPartida.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.pdb
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado1.png
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado2.png
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado3.png
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado4.png
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado5.png
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado6.png
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe.config
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe
+C:\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.pdb
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Form1.resources
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.FormPartida.resources
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.exe
+C:\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado1.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado2.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado3.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado4.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado5.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main (1)\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado6.png
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.exe
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.pdb
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado1.png
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado2.png
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado3.png
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado4.png
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado5.png
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado6.png
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe.config
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.pdb
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Form1.resources
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.FormPartida.resources
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Users\ROBER\Desktop\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado1.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado2.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado3.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado4.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado5.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado6.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe.config
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Form1.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.FormPartida.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main_2\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado1.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado2.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado3.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado4.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado5.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Images\dado6.png
+C:\Users\GARCI\OneDrive\Escritorio\Proyecto_SO_Futbol-main\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.FormPartida.resources
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe.config
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\bin\Debug\Cliente.pdb
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.AssemblyReference.cache
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Form1.resources
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.GenerateResource.cache
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Form.csproj.CoreCompileInputs.cache
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.exe
+C:\Users\GARCI\OneDrive\Escritorio\Casino\Proyecto_SO_Futbol-main\CLiente\obj\Debug\Cliente.pdb

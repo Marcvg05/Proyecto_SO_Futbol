@@ -1,0 +1,24 @@
+Protocolo Servidor-Cliente
+
+Código   | Descripción                              | Mensaje Cliente                          | Respuesta Servidor
+---------|------------------------------------------|------------------------------------------|---------------------------------------------------------------------------------------
+1        | Registro de usuario                     | 1|<username>|<password>                  | Registro exitoso, / Error: Usuario ya existe, / Error: Fallo en registro,
+2        | Inicio de sesión                        | 2|<username>|<password>                  | Login exitoso, / Error: Credenciales inválidas,
+3        | Crear partida                           | 3|<username>                             | Partida creada por <username> / Error: Ya tienes una partida creada
+4        | Consultar jugadores conectados          | 4|                                       | <num_jugadores>/<jugador1>/<jugador2>/...
+5        | Consultar historial de partidas         | 5|                                       | <match_id>:<ganador>:<perdedor1>:<perdedor2>|... / Error: No autenticado
+6        | Cerrar sesión                           | 6|                                       | Sesión cerrada correctamente,
+7        | Enviar mensaje al chat global           | 7|<username>|<mensaje>                   | Mensaje enviado / Error: Mensaje demasiado largo
+8        | Crear partida                           | 8|<username>                             | Partida creada por <username> / Error: Ya tienes una partida creada
+9        | Invitar a un jugador                    | 9|<invitado>                             | Invitación enviada / Error: Jugador no encontrado o no conectado
+10       | Consultar jugadores en la partida       | 10|                                      | Jugadores en la partida: <jugador1>, <jugador2>, ... / Error: No estás en una partida
+11       | Unirse a una partida                    | 11|<creador>                             | Te has unido a la partida de <creador> / Error: Partida no encontrada
+12       | Iniciar partida manualmente             | 12|<username>                            | Partida Iniciada por <username> / Error: La partida aún no tiene suficientes jugadores
+13       | Apostar (adivinar el número)            | 13|<username>|<apuesta>                  | Apuesta recibida de <username>: <apuesta> / Error: No estás en una partida activa
+14       | Confirmar siguiente ronda               | 14|<username>                            | Confirmación de siguiente ronda recibida de <username>
+15       | Salir de la partida                     | 15|<username>                            | Has salido de la partida.
+16       | Darse de baja                           | 16|<username>                            | Se le ha desconectado y eliminado su usuario. / Error eliminando usuario
+17       | Consultar jugadores conocidos           | 17|                                      | CONOCIDOS|<jugador1>|<jugador2>|... / CONOCIDOS|No hay jugadores conocidos
+18       | Consultar historial entre dos jugadores | 18|<jugador1>|<jugador2>                 | <match_id>:<ganador>:<perdedores>|... / NO_HAY_PARTIDAS
+19       | Consultar partidas por fecha            | 19|<fecha>                               | <match_id>:<fecha>:<ganador>:<perdedores>|... / NO_HAY_PARTIDAS
+20       | Listado de jugadores con los que jugué  | 20|<username>                            | <jugador1>\n<jugador2>\n... / Error: Nombre de usuario no válido

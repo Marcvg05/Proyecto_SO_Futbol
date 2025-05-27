@@ -79,5 +79,13 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\dado1.jpg" />
+    <Content Include="Images\dado2.jpg" />
+    <Content Include="Images\dado3.jpg" />
+    <Content Include="Images\dado4.jpg" />
+    <Content Include="Images\dado5.jpg" />
+    <Content Include="Images\dado6.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

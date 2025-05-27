@@ -18,7 +18,7 @@ CREATE TABLE matches (
     match_date DATETIME NOT NULL,
     duration INT NOT NULL,
     winner_name VARCHAR(50),
-    FOREIGN KEY (winner_name) REFERENCES players(username)
+    FOREIGN KEY (winner_name) REFERENCES players(username) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE match_players (
@@ -27,7 +27,7 @@ CREATE TABLE match_players (
     result VARCHAR(50),
     PRIMARY KEY (match_id, player_name),
     FOREIGN KEY (match_id) REFERENCES matches(match_id),
-    FOREIGN KEY (player_name) REFERENCES players(username)
+    FOREIGN KEY (player_name) REFERENCES players(username) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE match_logs (
@@ -36,32 +36,18 @@ CREATE TABLE match_logs (
     player_name VARCHAR(50),
     action VARCHAR(50),
     FOREIGN KEY (match_id) REFERENCES matches(match_id),
-    FOREIGN KEY (player_name) REFERENCES players(username)
+    FOREIGN KEY (player_name) REFERENCES players(username) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Corrección en los INSERT (eliminar punto y coma después del primer registro)
-INSERT INTO players (username,password) VALUES
-('player1', 'patata'),  -- Cambiado ; por ,
-('player2', 'patata'),
-('player3', 'patata');
 
--- Luego los partidos (solo dependen de players para winner_name)
-INSERT INTO matches (match_date, duration, winner_name) VALUES
-('2023-10-01 15:00:00', 30, 'player1'),  -- Este será match_id = 1
-('2023-10-02 16:00:00', 25, 'player2');  -- Este será match_id = 2
-
--- Después las relaciones jugador-partido
-INSERT INTO match_players (match_id, player_name, result) VALUES
-(1, 'player1', 'win'),
-(1, 'player2', 'lose'),
-(2, 'player2', 'win'),
-(2, 'player3', 'lose');
-
--- Corrección en el INSERT de match_logs (cambiar player_id por player_name)
-INSERT INTO match_logs (match_id, player_name, action) VALUES
-(1, 'player2', 'dribble'),
-(1, 'player2', 'shoot'),
-(1, 'player2', 'dribble'),
-(2, 'player2', 'dribble'),
-(2, 'player2', 'score'),
-(2, 'player2', 'dribble');
+SELECT 
+    m.match_id,
+    m.match_date,
+    m.duration,
+    m.winner_name AS ganador,
+    MAX(CASE WHEN mp.result = 'lose' THEN mp.player_name END) AS perdedor1,
+    MIN(CASE WHEN mp.result = 'lose' THEN mp.player_name END) AS perdedor2
+FROM matches m
+JOIN match_players mp ON m.match_id = mp.match_id
+GROUP BY m.match_id
+ORDER BY m.match_date DESC;

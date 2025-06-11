@@ -103,7 +103,9 @@ namespace Cliente
 
         private void InitializeChatTable()
         {
-            chatTable.Columns.Add("Mensaje", typeof(string));
+            chatTable = new DataTable();
+            if (!chatTable.Columns.Contains("Mensaje"))
+                chatTable.Columns.Add("Mensaje", typeof(string));
             chatDataGridView.DataSource = chatTable;
 
             // Configuración visual
@@ -181,11 +183,23 @@ namespace Cliente
 
         private void button1_Click(object sender, EventArgs e)
         {
-
-            if (server != null && server.Connected)
+            // Limpia cualquier socket/hilo anterior
+            if (server != null)
             {
-                MessageBox.Show("Ya estás conectado al servidor");
-                return;
+                try
+                {
+                    if (server.Connected)
+                        server.Shutdown(SocketShutdown.Both);
+                    server.Close();
+                }
+                catch { }
+                server = null;
+            }
+            if (receiveThread != null && receiveThread.IsAlive)
+            {
+                isReceiving = false;
+                receiveThread.Join(500);
+                receiveThread = null;
             }
 
             try
@@ -232,10 +246,6 @@ namespace Cliente
                 chatDataGridView.RowHeadersVisible = false;
                 InitializeChatTable();   // El nuevo para el chat
                 chatDataGridView.Visible = false;
-                // Inicializar DataTable para el chat
-                chatTable = new DataTable();
-                chatTable.Columns.Add("Mensaje", typeof(string));
-                chatDataGridView.DataSource = chatTable;
 
                 StartReceivingThread();
             }
@@ -249,6 +259,19 @@ namespace Cliente
 
         private void button6_Click(object sender, EventArgs e) //Salir
         {
+            try
+            {
+                if (server != null && server.Connected)
+                {
+                    string mensaje = "6";
+                    byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+                    // Espera breve para asegurar el envío antes de cerrar
+                    Thread.Sleep(100);
+                }
+            }
+            catch { /* Ignorar errores de desconexión */ }
+
             Close();
         }
 
@@ -475,6 +498,26 @@ namespace Cliente
                             this.Invoke((MethodInvoker)delegate
                             {
                                 MessageBox.Show("El servidor cerró la conexión");
+                                MostrarSoloTituloYConectar();
+                                MiUsuario.Text = "";
+                                MiPassword.Text = "";
+                                // Limpia socket y thread
+                                try
+                                {
+                                    isReceiving = false;
+                                    if (server != null)
+                                    {
+                                        if (server.Connected)
+                                            server.Shutdown(SocketShutdown.Both);
+                                        server.Close();
+                                        server = null;
+                                    }
+                                    if (receiveThread != null && receiveThread.IsAlive)
+                                    {
+                                        receiveThread = null;
+                                    }
+                                }
+                                catch { }
                             });
                             break;
                         }
@@ -552,6 +595,12 @@ namespace Cliente
                 {
                     MessageBox.Show("Error al iniciar sesión. Inténtelo de nuevo o regístrese antes.", "Inicio de sesión fallido");
                     AddNotification("Error al iniciar sesión. Inténtelo de nuevo o regístrese antes.");
+                    MiPassword.Text = "";
+                    return;
+                }
+                if (message.StartsWith("Primero tienes que registrarte"))
+                {
+                    MessageBox.Show("Primero tienes que registrarte antes de iniciar sesión.", "Usuario no registrado");
                     MiPassword.Text = "";
                     return;
                 }
@@ -705,8 +754,18 @@ namespace Cliente
                 }
                 else if (message.StartsWith("LOGOUT:"))
                 {
-                    string playerName = message.Substring(7); // Elimina "LOGOUT:"
+                    string playerName = message.Substring(7).Trim(); // Elimina "LOGOUT:"
                     AddNotification($"LOGOUT:{playerName}");
+
+                    // Elimina al jugador del DataTable de conectados
+                    for (int i = connectedPlayersTable.Rows.Count - 1; i >= 0; i--)
+                    {
+                        var row = connectedPlayersTable.Rows[i];
+                        if (row["Historial"].ToString().StartsWith(playerName + " conectado"))
+                        {
+                            connectedPlayersTable.Rows.RemoveAt(i);
+                        }
+                    }
                 }
                 else if (message.Contains("exitoso"))
                 {
@@ -716,18 +775,23 @@ namespace Cliente
                 }
                 else if (message.StartsWith("INVITACION|"))
                 {
-                    string invitacion = message.Substring(11); // Elimina "INVITACION|"
-                    DialogResult result = MessageBox.Show(invitacion, "Invitación", MessageBoxButtons.YesNo);
+                    string invitacion = message.Substring(11);
+                    DialogResult result = MessageBox.Show(invitacion, "Invitacion", MessageBoxButtons.YesNo);
 
+                    string creador = invitacion.Split(' ')[0];
                     if (result == DialogResult.Yes)
                     {
-                        // Extraer el nombre del creador de la partida
-                        string creador = invitacion.Split(' ')[0]; // Asume que el mensaje tiene formato "Creador te ha invitado..."
                         try
                         {
-                            string mensaje = $"11|{creador}|{MiUsuario.Text}"; // Código 11 para unirse a una partida
+                            // Avisar al servidor que acepta
+                            string mensaje = $"20|{creador}|{MiUsuario.Text}|ACEPTADA";
                             byte[] msg = Encoding.ASCII.GetBytes(mensaje);
                             server.Send(msg);
+
+                            // Unirse a la partida
+                            string mensajeUnirse = $"11|{creador}|{MiUsuario.Text}";
+                            byte[] msgUnirse = Encoding.ASCII.GetBytes(mensajeUnirse);
+                            server.Send(msgUnirse);
 
                             MessageBox.Show("Te has unido a la partida");
                         }
@@ -738,7 +802,26 @@ namespace Cliente
                     }
                     else
                     {
+                        // Avisar al servidor que rechaza
+                        string mensaje = $"20|{creador}|{MiUsuario.Text}|RECHAZADA";
+                        byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                        server.Send(msg);
+
                         MessageBox.Show("Has rechazado la invitación");
+                    }
+                }
+                else if (message.StartsWith("RESPUESTA_INVITACION|"))
+                {
+                    // Formato: RESPUESTA_INVITACION|nombreInvitado|ACEPTADA/RECHAZADA
+                    string[] partes = message.Split('|');
+                    if (partes.Length >= 3)
+                    {
+                        string invitado = partes[1];
+                        string respuesta = partes[2];
+                        if (respuesta == "ACEPTADA")
+                            MessageBox.Show($"{invitado} ha aceptado tu invitación.");
+                        else
+                            MessageBox.Show($"{invitado} ha rechazado tu invitación.");
                     }
                 }
                 else if (message.StartsWith("UNIRSE|"))
@@ -824,6 +907,34 @@ namespace Cliente
                         SALIR.Visible = true;
                     }
                 }
+                else if (message.Contains("Se le ha desconectado y eliminado su usuario."))
+                {
+                    MessageBox.Show("Se le ha desconectado y eliminado su usuario.");
+                    MostrarSoloTituloYConectar();
+                    MiUsuario.Text = "";
+                    MiPassword.Text = "";
+                    // Cierra el socket y detén el hilo receptor
+                    try
+                    {
+                        isReceiving = false;
+                        if (server != null)
+                        {
+                            if (server.Connected)
+                            {
+                                server.Shutdown(SocketShutdown.Both);
+                            }
+                            server.Close();
+                            server = null;
+                        }
+                        if (receiveThread != null && receiveThread.IsAlive)
+                        {
+                            receiveThread.Join(500);
+                            receiveThread = null;
+                        }
+                    }
+                    catch { }
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -864,7 +975,50 @@ namespace Cliente
         {
 
         }
+        private void MostrarSoloTituloYConectar()
+        {
+            TITULO.Visible = true;
+            button1.Visible = true;
+            button1.Enabled = true;
 
+            // Oculta todo lo demás (igual que en Darse de baja)
+            label1.Visible = false;
+            label2.Visible = false;
+            MiUsuario.Visible = false;
+            MiPassword.Visible = false;
+            button2.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            connectedPlayersDataGridView.Visible = false;
+            statusLabel.Visible = false;
+            ChatBox.Visible = false;
+            Enviar_Mensaje.Visible = false;
+            chatDataGridView.Visible = false;
+            CrearPartidaButton.Visible = false;
+            InvitarJugadorButton.Visible = false;
+            InvitarJugadorTextBox.Visible = false;
+            MostrarJugadoresButton.Visible = false;
+            DarseBaja.Visible = false;
+            JugadoresConocidos.Visible = false;
+            button7.Visible = false;
+            textBox1.Visible = false;
+            DiaMesAño.Visible = false;
+            button8.Visible = false;
+            rondaLabel.Visible = false;
+            puntosLabel.Visible = false;
+            dadoComboBox.Visible = false;
+            Enviar.Visible = false;
+            dadoPictureBox.Visible = false;
+            SiguienteRonda.Visible = false;
+            GanadorRonda.Visible = false;
+            IniciarPartidaButton.Visible = false;
+            GanadorPartida.Visible = false;
+            SALIR.Visible = false;
+
+            MiUsuario.Text = "";
+            MiPassword.Text = "";
+        }
         private void Enviar_Mensaje_Click(object sender, EventArgs e)
         {
             if (server == null || !server.Connected)
@@ -969,7 +1123,18 @@ namespace Cliente
                 int bytesRec = server.Receive(buffer);
                 string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec).Trim();
 
-                MessageBox.Show(respuesta);
+                if (respuesta.Contains("Error: No tienes una partida creada"))
+                {
+                    MessageBox.Show("Debes crear primero la partida antes de invitar a alguien.");
+                }
+                else if (respuesta.Contains("Error: Ya tienes una partida creada"))
+                {
+                    MessageBox.Show("Ya tienes una partida creada.");
+                }
+                else
+                {
+                    MessageBox.Show(respuesta);
+                }
             }
             catch (Exception ex)
             {
@@ -1174,11 +1339,12 @@ namespace Cliente
                 {
                     finalizarPulsado = true;
                     SiguienteRonda.Enabled = false;
-                    // Si ya tenemos los datos del ganador, mostramos la label
+                    // Si ya tenemos los datos del ganador, mostramos la label y el botón SALIR
                     if (ganadorPartidaNombre != null && ganadorPartidaPuntos != null)
                     {
                         GanadorPartida.Visible = true;
                         GanadorPartida.Text = $"EL GANADOR DE LA PARTIDA HA SIDO {ganadorPartidaNombre}!!!";
+                        SALIR.Visible = true;
                     }
                 }
             }
@@ -1223,6 +1389,44 @@ namespace Cliente
                 MessageBox.Show("No estás conectado al servidor");
                 return;
             }
+            TITULO.Visible = true;
+            button1.Visible = true;
+            button1.Enabled = true;
+
+            // Oculta todo lo demás
+            label1.Visible = false;
+            label2.Visible = false;
+            MiUsuario.Visible = false;
+            MiPassword.Visible = false;
+            button2.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            connectedPlayersDataGridView.Visible = false;
+            statusLabel.Visible = false;
+            ChatBox.Visible = false;
+            Enviar_Mensaje.Visible = false;
+            chatDataGridView.Visible = false;
+            CrearPartidaButton.Visible = false;
+            InvitarJugadorButton.Visible = false;
+            InvitarJugadorTextBox.Visible = false;
+            MostrarJugadoresButton.Visible = false;
+            DarseBaja.Visible = false;
+            JugadoresConocidos.Visible = false;
+            button7.Visible = false;
+            textBox1.Visible = false;
+            DiaMesAño.Visible = false;
+            button8.Visible = false;
+            rondaLabel.Visible = false;
+            puntosLabel.Visible = false;
+            dadoComboBox.Visible = false;
+            Enviar.Visible = false;
+            dadoPictureBox.Visible = false;
+            SiguienteRonda.Visible = false;
+            GanadorRonda.Visible = false;
+            IniciarPartidaButton.Visible = false;
+            GanadorPartida.Visible = false;
+            SALIR.Visible = false;
 
             string mensaje = $"16|{MiUsuario.Text}";
             byte[] msg = Encoding.ASCII.GetBytes(mensaje);
@@ -1417,14 +1621,21 @@ namespace Cliente
                 tabla.Columns.Add("Perdedores");
 
                 string[] partidas = respuesta.Split('|');
+
                 foreach (string partida in partidas)
                 {
-                    if (!string.IsNullOrEmpty(partida))
+                    if (!string.IsNullOrWhiteSpace(partida))
                     {
-                        string[] campos = partida.Split(':');
-                        if (campos.Length == 4)
+                        string[] partes = partida.Split(':');
+
+                        if (partes.Length >= 6)
                         {
-                            tabla.Rows.Add(campos[0], campos[1], campos[2], campos[3]);
+                            string id = partes[0];
+                            string fechaCompleta = $"{partes[1]}:{partes[2]}:{partes[3]}"; // hh:mm:ss
+                            string ganador = partes[4];
+                            string perdedores = partes.Length > 5 ? partes[5] : "(sin datos)";
+
+                            tabla.Rows.Add(id, fechaCompleta, ganador, perdedores);
                         }
                     }
                 }
@@ -1447,6 +1658,11 @@ namespace Cliente
             {
                 MessageBox.Show($"Error: {ex.Message}");
             }
+        }
+
+        private void connectedPlayersDataGridView_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

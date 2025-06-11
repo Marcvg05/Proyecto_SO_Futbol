@@ -359,7 +359,7 @@
             this.lblBienvenida.Font = new System.Drawing.Font("MV Boli", 95.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblBienvenida.ForeColor = System.Drawing.Color.White;
             this.lblBienvenida.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblBienvenida.Location = new System.Drawing.Point(-846, 762);
+            this.lblBienvenida.Location = new System.Drawing.Point(-603, 394);
             this.lblBienvenida.Name = "lblBienvenida";
             this.lblBienvenida.Size = new System.Drawing.Size(1259, 550);
             this.lblBienvenida.TabIndex = 13;
@@ -371,6 +371,7 @@
             // IniciarPartidaButton
             // 
             this.IniciarPartidaButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("IniciarPartidaButton.BackgroundImage")));
+            this.IniciarPartidaButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.IniciarPartidaButton.FlatAppearance.BorderColor = System.Drawing.Color.SaddleBrown;
             this.IniciarPartidaButton.FlatAppearance.BorderSize = 4;
             this.IniciarPartidaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -402,6 +403,7 @@
             this.connectedPlayersDataGridView.Name = "connectedPlayersDataGridView";
             this.connectedPlayersDataGridView.Size = new System.Drawing.Size(207, 296);
             this.connectedPlayersDataGridView.TabIndex = 24;
+            this.connectedPlayersDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.connectedPlayersDataGridView_CellContentClick_1);
             // 
             // rondaLabel
             // 
@@ -505,6 +507,7 @@
             // SALIR
             // 
             this.SALIR.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("SALIR.BackgroundImage")));
+            this.SALIR.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.SALIR.FlatAppearance.BorderColor = System.Drawing.Color.SaddleBrown;
             this.SALIR.FlatAppearance.BorderSize = 4;
             this.SALIR.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -522,13 +525,13 @@
             // 
             this.GanadorPartida.AutoSize = true;
             this.GanadorPartida.BackColor = System.Drawing.Color.Transparent;
-            this.GanadorPartida.Font = new System.Drawing.Font("MV Boli", 50F, System.Drawing.FontStyle.Bold);
+            this.GanadorPartida.Font = new System.Drawing.Font("MV Boli", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GanadorPartida.ForeColor = System.Drawing.Color.White;
-            this.GanadorPartida.Location = new System.Drawing.Point(-4, 50);
+            this.GanadorPartida.Location = new System.Drawing.Point(454, 31);
             this.GanadorPartida.Name = "GanadorPartida";
-            this.GanadorPartida.Size = new System.Drawing.Size(221, 87);
+            this.GanadorPartida.Size = new System.Drawing.Size(149, 52);
             this.GanadorPartida.TabIndex = 33;
-            this.GanadorPartida.Text = "label3";
+            this.GanadorPartida.Text = "Label3";
             this.GanadorPartida.Click += new System.EventHandler(this.GanadorPartida_Click);
             // 
             // DarseBaja

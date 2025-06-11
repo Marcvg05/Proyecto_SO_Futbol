@@ -344,7 +344,7 @@ void *manejar_partida(void *arg) {
         int jugadores_respondieron[MAX_PLAYERS_PER_GAME] = {0};
 
         time_t start_time = time(NULL);
-        while (time(NULL) - start_time < 40 && respuestas_recibidas < MAX_PLAYERS_PER_GAME) {
+        while (time(NULL) - start_time < 10 && respuestas_recibidas < MAX_PLAYERS_PER_GAME) {
             for (int i = 0; i < MAX_PLAYERS_PER_GAME; i++) {
                 if (jugadores_respondieron[i]) continue;
                 char buffer[256] = {0};
@@ -407,10 +407,13 @@ void *manejar_partida(void *arg) {
             printf("[SERVER] Enviado a %s: %s\n", partida->jugadores[i], estado);
         }
 
-        // Esperar confirmación de los jugadores para pasar a la siguiente ronda
+        // Esperar confirmación de los jugadores para pasar a la siguiente ronda (con timeout)
         int confirmaciones_recibidas = 0;
         int jugadores_confirmaron[MAX_PLAYERS_PER_GAME] = {0};
-        while (confirmaciones_recibidas < MAX_PLAYERS_PER_GAME) {
+        time_t start_confirm = time(NULL);
+        int timeout_confirm = 10; // segundos
+
+        while (confirmaciones_recibidas < MAX_PLAYERS_PER_GAME && (time(NULL) - start_confirm) < timeout_confirm) {
             for (int i = 0; i < MAX_PLAYERS_PER_GAME; i++) {
                 if (jugadores_confirmaron[i]) continue;
                 char buffer[256] = {0};
@@ -426,7 +429,15 @@ void *manejar_partida(void *arg) {
             }
             usleep(100000);
         }
-        printf(">> Todas las confirmaciones recibidas. Pasando a la siguiente ronda...\n");
+        // Si no han confirmado todos, fuerza el paso de ronda
+        for (int i = 0; i < MAX_PLAYERS_PER_GAME; i++) {
+            if (!jugadores_confirmaron[i]) {
+                printf("Timeout: Forzando SIGUIENTE_RONDA para %s\n", partida->jugadores[i]);
+                jugadores_confirmaron[i] = 1;
+                confirmaciones_recibidas++;
+            }
+        }
+        printf(">> Pasando a la siguiente ronda (timeout o confirmaciones completas)...\n");
     }
 
     // Determinar el ganador final
@@ -452,6 +463,34 @@ void *manejar_partida(void *arg) {
     }
 
     printf("Partida finalizada. Ganador: %s\n", partida->jugadores[ganador]);
+    // Guardar partida en la base de datos
+    char insert_match_query[512];
+    time_t tiempo_fin = time(NULL);
+    int duracion = (int)(tiempo_fin - partida->tiempo_inicio);
+
+    snprintf(insert_match_query, sizeof(insert_match_query),
+            "INSERT INTO matches (match_date, duration, winner_name) "
+            "VALUES (NOW(), %d, '%s')", duracion, partida->jugadores[ganador]);
+
+    if (mysql_query(conn, insert_match_query) == 0) {
+        int match_id = (int)mysql_insert_id(conn);
+        printf("✅ Partida registrada en DB con match_id = %d\n", match_id);
+
+        for (int i = 0; i < MAX_PLAYERS_PER_GAME; i++) {
+            const char *resultado = (i == ganador) ? "win" : "lose";
+            char insert_player_query[512];
+            snprintf(insert_player_query, sizeof(insert_player_query),
+                    "INSERT INTO match_players (match_id, player_name, result) "
+                    "VALUES (%d, '%s', '%s')",
+                    match_id, partida->jugadores[i], resultado);
+
+            if (mysql_query(conn, insert_player_query) != 0) {
+                fprintf(stderr, "❌ Error insertando jugador: %s\n", mysql_error(conn));
+            }
+        }
+    } else {
+        fprintf(stderr, "❌ Error insertando partida: %s\n", mysql_error(conn));
+    }
     pthread_exit(NULL);
 }
 
@@ -608,6 +647,8 @@ void *handle_client(void *arg) {
                     } else if (result == -2) {
                         strcat(buff2, " Error: Ya conectado,");
                     }
+                } else if (login_status == 0) {
+                    strcpy(buff2, "Primero tienes que registrarte,");
                 } else {
                     strcpy(buff2, "Error: Credenciales inválidas,");
                 }
@@ -638,13 +679,13 @@ void *handle_client(void *arg) {
             if (pos == -1) {
                 strcpy(buff2, "Error: No autenticado");
             } else {
-                const char* query = "SELECT m.match_id, m.winner_name, "
-                                    "MAX(CASE WHEN mp.result = 'lose' THEN mp.player_name END) AS perdedor1, "
-                                    "MIN(CASE WHEN mp.result = 'lose' THEN mp.player_name END) AS perdedor2 "
-                                    "FROM matches m "
-                                    "JOIN match_players mp ON m.match_id = mp.match_id "
-                                    "GROUP BY m.match_id "
-                                    "ORDER BY m.match_date DESC;";
+                const char* query = 
+                    "SELECT m.match_id, m.winner_name, "
+                    "GROUP_CONCAT(CASE WHEN mp.result = 'lose' THEN mp.player_name END) AS perdedores "
+                    "FROM matches m "
+                    "JOIN match_players mp ON m.match_id = mp.match_id "
+                    "GROUP BY m.match_id "
+                    "ORDER BY m.match_date DESC;";
                 
                 if (mysql_query(conn, query)) {
                     strcpy(buff2, "Error: DB query failed");
@@ -656,12 +697,28 @@ void *handle_client(void *arg) {
                         buff2[0] = '\0';
                         MYSQL_ROW row;
                         while ((row = mysql_fetch_row(result))) {
+                            char perdedor1[50] = "NULL";
+                            char perdedor2[50] = "NULL";
+                            if (row[2] && strlen(row[2]) > 0) {
+                                // row[2] es "perdedor1,perdedor2" o solo "perdedor1"
+                                char *coma = strchr(row[2], ',');
+                                if (coma) {
+                                    size_t len = coma - row[2];
+                                    strncpy(perdedor1, row[2], len);
+                                    perdedor1[len] = '\0';
+                                    strncpy(perdedor2, coma + 1, sizeof(perdedor2) - 1);
+                                    perdedor2[sizeof(perdedor2) - 1] = '\0';
+                                } else {
+                                    strncpy(perdedor1, row[2], sizeof(perdedor1) - 1);
+                                    perdedor1[sizeof(perdedor1) - 1] = '\0';
+                                }
+                            }
                             char match_info[256];
                             snprintf(match_info, sizeof(match_info), "%s:%s:%s:%s|",
                                     row[0] ? row[0] : "NULL", // match_id
                                     row[1] ? row[1] : "NULL", // ganador
-                                    row[2] ? row[2] : "NULL", // perdedor1
-                                    row[3] ? row[3] : "NULL"  // perdedor2
+                                    perdedor1,
+                                    perdedor2
                             );
                             strcat(buff2, match_info);
                         }
@@ -774,19 +831,21 @@ void *handle_client(void *arg) {
                 pthread_mutex_lock(mutex);
                 int pos_invitado = DamePosicion(lista, invitado);
                 pthread_mutex_unlock(mutex);
-                printf("9|%s|%s\n", data->nombre, invitado);
 
-                if (pos_invitado == -1) {
+                // Comprobar si el usuario tiene una partida creada
+                if (BuscarPartidaPorCreador(data->nombre) == -1) {
+                    strcpy(buff2, "Error: No tienes una partida creada");
+                }
+                else if (pos_invitado == -1) {
                     strcpy(buff2, "Error: Jugador no encontrado o no conectado");
                 } else {
                     int sock_invitado = lista->conectados[pos_invitado].socket;
                     char invitacion[256];
-                    snprintf(invitacion, sizeof(invitacion), "INVITACION|%s te ha invitado a una partida", data->nombre);
-
+                    snprintf(invitacion, sizeof(invitacion), "INVITACION|%s te ha invitado a una partida.", data->nombre);
                     if (write(sock_invitado, invitacion, strlen(invitacion)) <= 0) {
                         perror("Error enviando invitación");
                     } else {
-                        strcpy(buff2, "Invitación enviada");
+                        strcpy(buff2, "Invitacion enviada");
                     }
                 }
             } else {
@@ -844,9 +903,11 @@ void *handle_client(void *arg) {
                     if (result == 0) {
                         snprintf(buff2, sizeof(buff2), "Te has unido a la partida de %s", creador);
                     } else if (result == -1) {
-                        strcpy(buff2, "Error: Partida no encontrada");
+                        buff2[0] = '\0';
+                        snprintf(buff2, sizeof(buff2), "Error: Partida no encontrada");
                     } else if (result == -2) {
-                        strcpy(buff2, "Error: Partida llena");
+                        buff2[0] = '\0';
+                        snprintf(buff2, sizeof(buff2), "Error: Partida llena");
                     }
                 }
             }
@@ -981,40 +1042,7 @@ void *handle_client(void *arg) {
                 }
 
                 if (todos_salidos) {
-                    // Calcula la duración real
-                    time_t tiempo_fin = time(NULL);
-                    int duracion = (int)difftime(tiempo_fin, partidas_activas[partida_encontrada].tiempo_inicio);
-
-                    // Guardar en la base de datos el historial de la partida
-                    char query[512];
-                    const char* winner = partidas_activas[partida_encontrada].jugadores[0];
-                    int max_puntos = partidas_activas[partida_encontrada].puntos[0];
-                    int ganador_idx = 0;
-                    for (int i = 1; i < MAX_PLAYERS_PER_GAME; i++) {
-                        if (partidas_activas[partida_encontrada].puntos[i] > max_puntos) {
-                            max_puntos = partidas_activas[partida_encontrada].puntos[i];
-                            winner = partidas_activas[partida_encontrada].jugadores[i];
-                            ganador_idx = i;
-                        }
-                    }
-                    snprintf(query, sizeof(query), "INSERT INTO matches (match_date, duration, winner_name) VALUES (NOW(), %d, '%s')", duracion, winner);
-                    if (mysql_query(conn, query)) {
-                        fprintf(stderr, "Error insertando en matches: %s\n", mysql_error(conn));
-                    } else {
-                        int match_id = (int)mysql_insert_id(conn);
-                        // 2. Insertar en match_players
-                        for (int i = 0; i < MAX_PLAYERS_PER_GAME; i++) {
-                            const char* result = (i == ganador_idx) ? "win" : "lose";
-                            snprintf(query, sizeof(query),
-                                "INSERT INTO match_players (match_id, player_name, result) VALUES (%d, '%s', '%s')",
-                                match_id, partidas_activas[partida_encontrada].jugadores[i], result);
-                            if (mysql_query(conn, query)) {
-                                fprintf(stderr, "Error insertando en match_players: %s\n", mysql_error(conn));
-                            }
-                        }
-                    }
-
-                    // Eliminar la partida activa (compactar el array)
+                    // Solo eliminar la partida activa, NO guardar en la base de datos aquí
                     for (int i = partida_encontrada; i < num_partidas_activas - 1; i++) {
                         partidas_activas[i] = partidas_activas[i + 1];
                     }
@@ -1034,21 +1062,64 @@ void *handle_client(void *arg) {
             if (pos == -1) {
                 strcpy(buff2, "Error: No autenticado");
             } else {
-                // Borra primero de match_players y match_logs
+                // 1. Buscar todos los match_id donde el usuario ha jugado
                 char query[256];
+                snprintf(query, sizeof(query), "SELECT DISTINCT match_id FROM match_players WHERE player_name='%s'", data->nombre);
+                if (mysql_query(conn, query) == 0) {
+                    MYSQL_RES *result = mysql_store_result(conn);
+                    if (result) {
+                        MYSQL_ROW row;
+                        while ((row = mysql_fetch_row(result))) {
+                            if (row[0]) {
+                                int match_id = atoi(row[0]);
+                                // Eliminar de match_logs
+                                char q1[128];
+                                snprintf(q1, sizeof(q1), "DELETE FROM match_logs WHERE match_id=%d", match_id);
+                                mysql_query(conn, q1);
+                                // Eliminar de match_players
+                                snprintf(q1, sizeof(q1), "DELETE FROM match_players WHERE match_id=%d", match_id);
+                                mysql_query(conn, q1);
+                                // Eliminar de matches
+                                snprintf(q1, sizeof(q1), "DELETE FROM matches WHERE match_id=%d", match_id);
+                                mysql_query(conn, q1);
+                            }
+                        }
+                        mysql_free_result(result);
+                    }
+                }
+                // 2. Eliminar de match_players y match_logs por si queda algún registro suelto
                 snprintf(query, sizeof(query), "DELETE FROM match_players WHERE player_name='%s'", data->nombre);
                 mysql_query(conn, query);
                 snprintf(query, sizeof(query), "DELETE FROM match_logs WHERE player_name='%s'", data->nombre);
                 mysql_query(conn, query);
 
-                // Ahora borra de players
+                // 3. Eliminar de players
                 snprintf(query, sizeof(query), "DELETE FROM players WHERE username='%s'", data->nombre);
                 if (mysql_query(conn, query)) {
                     snprintf(buff2, sizeof(buff2), "Error eliminando usuario: %s", mysql_error(conn));
                 } else {
                     pthread_mutex_lock(mutex);
                     Eliminar(lista, data->nombre);
+                    // Eliminar al usuario de todas las partidas pendientes
+                    for (int i = 0; i < num_partidas; i++) {
+                        for (int j = 0; j < partidas[i].num_jugadores; j++) {
+                            if (strcmp(partidas[i].jugadores[j], data->nombre) == 0) {
+                                // Mover los jugadores siguientes una posición hacia delante
+                                for (int k = j; k < partidas[i].num_jugadores - 1; k++) {
+                                    strncpy(partidas[i].jugadores[k], partidas[i].jugadores[k + 1], sizeof(partidas[i].jugadores[k]));
+                                }
+                                partidas[i].num_jugadores--;
+                                j--; // Revisar la nueva posición
+                            }
+                        }
+                        // Si la partida se queda sin jugadores, puedes eliminarla si quieres (opcional)
+                    }
                     pthread_mutex_unlock(mutex);
+
+                    // Notificar a todos los clientes que este usuario se ha desconectado
+                    char notif_msg[256];
+                    snprintf(notif_msg, sizeof(notif_msg), "LOGOUT:%s", data->nombre);
+                    send_notification(notif_handler, notif_msg, 1);
 
                     strcpy(buff2, "Se le ha desconectado y eliminado su usuario.");
                 }
@@ -1224,6 +1295,35 @@ void *handle_client(void *arg) {
             }
             write(sock_conn, buff2, strlen(buff2)+1);
         }
+        else if (codigo == 20) { // Respuesta a invitación
+            char creador[50] = "", invitado[50] = "", respuesta[20] = "";
+            if (p != NULL) {
+                strncpy(creador, p, sizeof(creador) - 1);
+                creador[sizeof(creador) - 1] = '\0';
+                p = strtok(NULL, "|");
+                if (p != NULL) {
+                    strncpy(invitado, p, sizeof(invitado) - 1);
+                    invitado[sizeof(invitado) - 1] = '\0';
+                    p = strtok(NULL, "|");
+                    if (p != NULL) {
+                        strncpy(respuesta, p, sizeof(respuesta) - 1);
+                        respuesta[sizeof(respuesta) - 1] = '\0';
+
+                        // Buscar el socket del creador
+                        pthread_mutex_lock(mutex);
+                        int pos_creador = DamePosicion(lista, creador);
+                        pthread_mutex_unlock(mutex);
+
+                        if (pos_creador != -1) {
+                            char aviso[128];
+                            snprintf(aviso, sizeof(aviso), "RESPUESTA_INVITACION|%s|%s", invitado, respuesta);
+                            write(lista->conectados[pos_creador].socket, aviso, strlen(aviso));
+                        }
+                    }
+                }
+            }
+            strcpy(buff2, "Respuesta enviada");
+        }
         else {
             strcpy(buff2, "Error: Código no válido,");
         }
@@ -1238,10 +1338,20 @@ void *handle_client(void *arg) {
     pthread_mutex_lock(mutex);
     Eliminar(lista, data->nombre);
 
-    char notif_msg[256];
-    snprintf(notif_msg, sizeof(notif_msg), "LOGOUT:%s", data->nombre);
-    send_notification(notif_handler, notif_msg, 1);
-
+    // Eliminar al usuario de todas las partidas pendientes
+    for (int i = 0; i < num_partidas; i++) {
+        for (int j = 0; j < partidas[i].num_jugadores; j++) {
+            if (strcmp(partidas[i].jugadores[j], data->nombre) == 0) {
+                // Mover los jugadores siguientes una posición hacia delante
+                for (int k = j; k < partidas[i].num_jugadores - 1; k++) {
+                    strncpy(partidas[i].jugadores[k], partidas[i].jugadores[k + 1], sizeof(partidas[i].jugadores[k]));
+                }
+                partidas[i].num_jugadores--;
+                j--; // Revisar la nueva posición
+            }
+        }
+        // Si la partida se queda sin jugadores, puedes eliminarla si quieres (opcional)
+    }
     pthread_mutex_unlock(mutex);
     }
 
@@ -1283,6 +1393,8 @@ int main(int argc, char *argv[]) {
     // Conectar a la base de datos
     connect_db();
 
+    // Establecer la zona horaria a España (UTC+2)
+    mysql_query(conn, "SET time_zone = '+02:00'");
     // Inicializar la semilla del generador de números aleatorios
     srand(time(NULL));
 
